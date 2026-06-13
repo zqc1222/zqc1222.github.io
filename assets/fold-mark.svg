@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240" role="img" aria-label="抽象折叠标志">
+  <path d="M120 18 207 95 162 135 120 98 78 135 33 95 120 18Z" fill="#2A3B49"/>
+  <path d="M33 95 78 135 78 207 33 167V95Z" fill="#A6B9BE"/>
+  <path d="M207 95 162 135 162 207 207 167V95Z" fill="#A6B9BE"/>
+  <path d="M78 207 120 170 162 207 120 222 78 207Z" fill="#FCF9F7"/>
+  <path d="M78 135 120 98 162 135 120 170 78 135Z" fill="#E6E0DA"/>
+</svg>
