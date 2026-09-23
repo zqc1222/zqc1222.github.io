@@ -1,49 +1,46 @@
-const body = document.body;
-const menuButton = document.querySelector(".menu-button");
-const menuPanel = document.querySelector(".menu-panel");
-const menuLinks = document.querySelectorAll(".menu-links a");
-const revealItems = document.querySelectorAll(".reveal");
-const year = new Date().getFullYear();
-
-document.querySelector("#year").textContent = year;
-document.querySelector("#menu-year").textContent = year;
-
-const setMenu = (isOpen) => {
-  body.classList.toggle("menu-open", isOpen);
-  menuButton.classList.toggle("is-open", isOpen);
-  menuPanel.classList.toggle("is-open", isOpen);
-  menuButton.setAttribute("aria-expanded", String(isOpen));
-  menuPanel.setAttribute("aria-hidden", String(!isOpen));
-};
-
-menuButton.addEventListener("click", () => {
-  setMenu(!menuPanel.classList.contains("is-open"));
+const menuButton = document.querySelector(".menu-toggle");
+const navigation = document.querySelector("#navigation");
+function closeMenu() {
+  menuButton?.setAttribute("aria-expanded", "false");
+  menuButton?.setAttribute("aria-label", "打开导航");
+  navigation?.classList.remove("is-open");
+}
+menuButton?.addEventListener("click", () => {
+  const open = menuButton.getAttribute("aria-expanded") !== "true";
+  menuButton.setAttribute("aria-expanded", String(open));
+  menuButton.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
+  navigation?.classList.toggle("is-open", open);
 });
-
-menuLinks.forEach((link) => {
-  link.addEventListener("click", () => setMenu(false));
-});
-
-window.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    setMenu(false);
+navigation
+  ?.querySelectorAll("a")
+  .forEach((link) => link.addEventListener("click", closeMenu));
+document.addEventListener("keydown", (event) => {
+  if (
+    event.key === "Escape" &&
+    menuButton?.getAttribute("aria-expanded") === "true"
+  ) {
+    closeMenu();
+    menuButton.focus();
   }
 });
-
-if ("IntersectionObserver" in window) {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.14 }
-  );
-
-  revealItems.forEach((item) => observer.observe(item));
-} else {
-  revealItems.forEach((item) => item.classList.add("is-visible"));
-}
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".site-header")) closeMenu();
+});
+window.matchMedia("(min-width: 601px)").addEventListener("change", closeMenu);
+const year = document.querySelector("#year");
+if (year) year.textContent = new Date().getFullYear();
+document
+  .querySelector(".copy-wechat")
+  ?.addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    const status = document.querySelector("#copy-status");
+    try {
+      await navigator.clipboard.writeText(button.dataset.copy);
+      status.textContent = "微信号已复制";
+    } catch {
+      status.textContent = `请长按或选择微信号复制：${button.dataset.copy}`;
+    }
+  });
+document
+  .querySelector("[data-print]")
+  ?.addEventListener("click", () => window.print());

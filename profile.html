@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="张群策的个人概览：教育背景、研究经历、工程实践与联系方式。"
+    />
+    <title>个人概览 · 张群策 Laurence Zhang</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./script.js" defer></script>
+    <style>
+      .profile {
+        max-width: 850px;
+        padding-block: 55px 70px;
+      }
+      .profile-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 48px;
+      }
+      .profile-nav button {
+        border: 0;
+      }
+      .profile h1 {
+        font-size: 43px;
+      }
+      .profile h1 span {
+        display: block;
+        font-size: 24px;
+        color: #85858d;
+        margin-top: 8px;
+        font-weight: 450;
+      }
+      .profile-subtitle {
+        color: #6e6e73;
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      .profile-contact {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 24px;
+        margin-top: 16px;
+        font-size: 12px;
+        color: #0066cc;
+      }
+      .profile section {
+        margin-top: 36px;
+        padding-top: 26px;
+        border-top: 1px solid #dedee3;
+      }
+      .profile h2 {
+        font-size: 20px;
+        margin-bottom: 19px;
+      }
+      .profile h3 {
+        font-size: 15px;
+        margin-top: 20px;
+        letter-spacing: 0;
+      }
+      .profile section p {
+        font-size: 13px;
+        color: #6e6e73;
+        line-height: 1.9;
+        margin-top: 7px;
+      }
+      .profile .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: baseline;
+      }
+      .profile .row span {
+        font-size: 11px;
+        color: #85858d;
+        white-space: nowrap;
+      }
+      .profile .row h3 {
+        margin-top: 0;
+      }
+      .profile-note {
+        margin-top: 40px;
+        font-size: 10px;
+        color: #85858d;
+      }
+      @media (max-width: 600px) {
+        .profile {
+          padding-top: 25px;
+        }
+        .profile-nav {
+          margin-bottom: 35px;
+        }
+        .profile h1 {
+          font-size: 35px;
+        }
+        .profile .row {
+          display: block;
+        }
+        .profile .row span {
+          display: block;
+          margin-top: 6px;
+        }
+      }
+      @media print {
+        @page {
+          size: A4;
+          margin: 15mm;
+        }
+        .profile {
+          width: 100%;
+          padding: 0;
+          max-width: none;
+        }
+        .profile-nav {
+          display: none;
+        }
+        .profile h1 {
+          font-size: 24pt !important;
+        }
+        .profile h1 span {
+          display: inline;
+          font-size: 14pt;
+          margin-left: 15px;
+        }
+        .profile-subtitle {
+          font-size: 10pt;
+          margin-top: 12px;
+        }
+        .profile-contact {
+          font-size: 9pt;
+          margin-top: 8px;
+        }
+        .profile section {
+          margin-top: 17px;
+          padding-top: 13px;
+          break-inside: avoid;
+        }
+        .profile h2 {
+          font-size: 13pt !important;
+          margin-bottom: 10px;
+        }
+        .profile h3 {
+          font-size: 10pt;
+          margin-top: 12px;
+        }
+        .profile section p {
+          font-size: 9pt;
+          line-height: 1.6;
+          margin-top: 4px;
+        }
+        .profile-note {
+          margin-top: 18px;
+        }
+        .profile .row {
+          display: flex;
+        }
+        .profile a {
+          color: #1d1d1f;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="profile wrap">
+      <div class="profile-nav">
+        <a class="text-link" href="./index.html">← 返回主页</a
+        ><button class="button primary" type="button" data-print>
+          打印 / 存为 PDF
+        </button>
+      </div>
+      <h1>张群策 <span>Laurence Zhang</span></h1>
+      <p class="profile-subtitle">
+        东北大学秦皇岛分校 · 计算机科学与技术 · 2025 级本科生
+      </p>
+      <div class="profile-contact">
+        <a href="mailto:zhangqunce90@gmail.com">zhangqunce90@gmail.com</a
+        ><a
+          href="https://github.com/zqc1222"
+          target="_blank"
+          rel="noopener noreferrer"
+          >github.com/zqc1222 ↗</a
+        ><span>微信：zqc2568137147</span>
+      </div>
+      <section>
+        <h2>研究兴趣</h2>
+        <p>
+          大模型智能体与 AI for
+          Science。目前参与化学智能体合作，希望在相关方向继续研究与深造。
+        </p>
+      </section>
+      <section>
+        <h2>研究与项目经历</h2>
+        <div class="row">
+          <h3>AI for Chemistry · 化学智能体合作</h3>
+          <span>研究与开发中</span>
+        </div>
+        <p>
+          与学长合作探索面向化学任务的智能体，当前关注接入大模型处理化学问题。
+        </p>
+        <h3>图像配准与对地目标定位</h3>
+        <p>
+          参与“基于多尺度结构特征融合的飞行器对地目标定位算法研究”，开展论文阅读、代码复现并完成项目答辩。
+        </p>
+        <h3>光度数据处理</h3>
+        <p>
+          负责质量控制与流程联调，参与数据处理流程的稳定性检查与协作推进。项目已交付，数据与技术细节保密。
+        </p>
+        <h3>论文相关工作</h3>
+        <p>参与电力方向与 CRRQ 相关论文工作，目前均未发表。</p>
+      </section>
+      <section>
+        <h2>工程实践</h2>
+        <div class="row">
+          <h3>AgentDock · 本地编程智能体协作工作台</h3>
+          <a
+            class="text-link"
+            href="https://github.com/zqc1222/agentdock"
+            target="_blank"
+            rel="noopener noreferrer"
+            >查看源码 ↗</a
+          >
+        </div>
+        <p>
+          MVP 支持计划、实现、审查与人工确认流程，包含事件流、运行历史与 Git
+          worktree 隔离。
+        </p>
+        <h3>大学生接单网站、刷题练习网站</h3>
+        <p>围绕需求、页面组织与功能实现开展网站工程实践。</p>
+      </section>
+      <section>
+        <h2>课程学习与荣誉</h2>
+        <p>
+          课程学习：数据结构、概率论、计算机数学基础；自学《最优化导论》。<br />荣誉：蓝桥杯省二等奖、校三等奖学金、2025
+          年度优秀团员。
+        </p>
+      </section>
+      <p class="profile-note">
+        更新：2026 年 9 月 · 完整项目与学习入口见个人主页。
+      </p>
+    </main>
+  </body>
+</html>
