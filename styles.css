@@ -214,11 +214,25 @@ summary:focus-visible {
   color: #6e6e73;
   margin-top: 18px;
 }
+.hero-school-link {
+  display: inline-flex;
+  gap: 8px;
+  margin-top: 10px;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 550;
+}
+.hero-school-link:hover span {
+  transform: translate(2px, -2px);
+}
+.hero-school-link span {
+  transition: transform 0.2s;
+}
 .hero-actions {
   display: flex;
   align-items: center;
   gap: 28px;
-  margin-top: 28px;
+  margin-top: 20px;
 }
 .button {
   display: inline-flex;
