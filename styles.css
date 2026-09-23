@@ -214,73 +214,45 @@ summary:focus-visible {
   color: #6e6e73;
   margin-top: 18px;
 }
+.hero-school-link {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 8px;
+  max-width: 100%;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+.school-link-cn {
+  color: #32455f;
+  font-size: 13px;
+  font-weight: 600;
+}
+.school-link-en {
+  grid-column: 1;
+  color: #78879a;
+  font-size: 11px;
+}
+.school-link-arrow {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--blue);
+  font-size: 13px;
+  transition: transform 0.2s;
+}
+.hero-school-link:hover .school-link-arrow {
+  transform: translate(2px, -2px);
+}
+.hero-school-link:hover .school-link-cn,
+.hero-school-link:hover .school-link-en {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .hero-actions {
   display: flex;
   align-items: center;
   gap: 28px;
   margin-top: 20px;
-}
-.school-affiliation {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  width: fit-content;
-  max-width: 100%;
-  margin-top: 30px;
-  padding: 12px 16px 12px 12px;
-  border: 1px solid #e4eaf3;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.76);
-  box-shadow: 0 10px 30px rgba(30, 65, 125, 0.035);
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s;
-}
-.school-affiliation:hover {
-  border-color: #b7cef4;
-  box-shadow: 0 14px 34px rgba(30, 65, 125, 0.09);
-  transform: translateY(-2px);
-}
-.school-affiliation:focus-visible {
-  outline: 2px solid var(--blue);
-  outline-offset: 4px;
-}
-.school-icon {
-  display: grid;
-  place-items: center;
-  flex: 0 0 50px;
-  width: 50px;
-  height: 50px;
-  border: 1px solid #bfd2ef;
-  border-radius: 50%;
-  color: var(--blue);
-}
-.school-icon svg {
-  width: 27px;
-  height: 27px;
-}
-.school-label {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-.school-label strong {
-  color: #273c5b;
-  font-size: 14px;
-  font-weight: 650;
-  letter-spacing: 0.015em;
-}
-.school-label > span {
-  color: #78879a;
-  font-size: 11px;
-  line-height: 1.4;
-}
-.school-arrow {
-  align-self: flex-start;
-  margin-left: 8px;
-  color: var(--blue);
-  font-size: 13px;
 }
 .button {
   display: inline-flex;
