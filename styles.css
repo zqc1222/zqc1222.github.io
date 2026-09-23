@@ -156,6 +156,28 @@ summary:focus-visible {
 .menu-toggle {
   display: none;
 }
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1;
+  font-size: 19px;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+.theme-toggle:hover {
+  border-color: var(--blue);
+  transform: translateY(-2px);
+}
 .eyebrow {
   font-size: 11px;
   font-weight: 650;
@@ -213,40 +235,6 @@ summary:focus-visible {
   line-height: 1.95;
   color: #6e6e73;
   margin-top: 18px;
-}
-.hero-school-link {
-  display: inline-grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: 8px;
-  max-width: 100%;
-  margin-top: 10px;
-  line-height: 1.4;
-}
-.school-link-cn {
-  color: #32455f;
-  font-size: 13px;
-  font-weight: 600;
-}
-.school-link-en {
-  grid-column: 1;
-  color: #78879a;
-  font-size: 11px;
-}
-.school-link-arrow {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
-  color: var(--blue);
-  font-size: 13px;
-  transition: transform 0.2s;
-}
-.hero-school-link:hover .school-link-arrow {
-  transform: translate(2px, -2px);
-}
-.hero-school-link:hover .school-link-cn,
-.hero-school-link:hover .school-link-en {
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 .hero-actions {
   display: flex;
@@ -1419,6 +1407,9 @@ h2 {
     margin-top: 10px;
     padding: 10px;
   }
+  .site-header nav .theme-toggle {
+    margin: 6px 8px;
+  }
   .hero {
     grid-template-columns: 1fr;
     padding-top: 47px;
@@ -1800,6 +1791,162 @@ h2 {
     transition: none !important;
   }
 }
+html[data-theme="dark"] {
+  --bg: #080d16;
+  --paper: #121b29;
+  --ink: #edf3fd;
+  --muted: #aab8c9;
+  --blue: #8abfff;
+  --line: #29384a;
+  color-scheme: dark;
+}
+html[data-theme="dark"] ::selection {
+  background: #345e8c;
+}
+html[data-theme="dark"] .skip-link {
+  background: #121b29;
+}
+@media (max-width: 600px) {
+  html[data-theme="dark"] .site-header nav {
+    background: #121b29;
+    border-color: #29384a;
+  }
+}
+html[data-theme="dark"] .site-header {
+  background: rgba(12, 19, 30, 0.84);
+  border-color: #253348;
+}
+html[data-theme="dark"] .site-header nav .nav-contact {
+  background: #dcecff;
+  color: #102036;
+}
+html[data-theme="dark"] .menu-toggle span {
+  background: #edf3fd;
+}
+html[data-theme="dark"] .hero .eyebrow,
+html[data-theme="dark"] .art-label,
+html[data-theme="dark"] .hero-name span,
+html[data-theme="dark"] .hero-description,
+html[data-theme="dark"] .art-caption,
+html[data-theme="dark"] .card-kicker,
+html[data-theme="dark"] .feature-copy h3 > span,
+html[data-theme="dark"] .mini-caption,
+html[data-theme="dark"] .visual-note,
+html[data-theme="dark"] .manuscript-icon,
+html[data-theme="dark"] .project-number,
+html[data-theme="dark"] .about-title h2 span,
+html[data-theme="dark"] .about-facts span,
+html[data-theme="dark"] .footer {
+  color: #aab8c9;
+}
+html[data-theme="dark"] .hero h1 > span {
+  background-image: linear-gradient(110deg, #b4d3ff, #71b4ff 60%, #9bdce7);
+}
+html[data-theme="dark"] .art-glow {
+  background: radial-gradient(ellipse, #233e68 0, transparent 70%);
+}
+html[data-theme="dark"] .art-label {
+  background: rgba(25, 39, 57, 0.87);
+  border-color: #3d536e;
+  box-shadow: 0 8px 30px #0004;
+}
+html[data-theme="dark"] .card {
+  border-color: #29384a;
+}
+html[data-theme="dark"] .section-heading h2 span,
+html[data-theme="dark"] .contact-section h2 span,
+html[data-theme="dark"] .profile h1 span,
+html[data-theme="dark"] .profile .row span,
+html[data-theme="dark"] .profile-note {
+  color: #9baec3;
+}
+html[data-theme="dark"] .status {
+  background: #173c38;
+  color: #a9e1cb;
+}
+html[data-theme="dark"] .neutral,
+html[data-theme="dark"] .tags > span,
+html[data-theme="dark"] .research-details summary > span {
+  background: #253347;
+  color: #c2cede;
+}
+html[data-theme="dark"] .research-details {
+  border-color: #29384a;
+}
+html[data-theme="dark"] .chem-art {
+  background: linear-gradient(135deg, #17253b, #101d31);
+}
+html[data-theme="dark"] .chem-halo {
+  background: radial-gradient(circle, #4d79b2, #20395e 65%, transparent);
+  opacity: 0.45;
+}
+html[data-theme="dark"] .registration-art {
+  background: radial-gradient(ellipse, #34465c, transparent 68%);
+}
+html[data-theme="dark"] .plane-back {
+  background-color: #304359;
+}
+html[data-theme="dark"] .plane-front {
+  background-color: #60768aa6;
+}
+html[data-theme="dark"] .outline-label {
+  border-color: #45566c;
+  color: #b4c1d3;
+}
+html[data-theme="dark"] .engineering-section {
+  background: #0d1521;
+}
+html[data-theme="dark"] .small-projects > a,
+html[data-theme="dark"] .small-projects > a:hover {
+  background: #1b293a;
+}
+html[data-theme="dark"] .arrow-circle {
+  background: #29394b;
+  border-color: #3a4d62;
+}
+html[data-theme="dark"] .optimization {
+  background: #192b41;
+  color: #d4e5fc;
+}
+html[data-theme="dark"] .probability {
+  background: #2a253b;
+  color: #e5daf5;
+}
+html[data-theme="dark"] .structures {
+  background: #1a302b;
+  color: #d5eee1;
+}
+html[data-theme="dark"] .learning-symbol,
+html[data-theme="dark"] .probability .learning-symbol {
+  color: currentColor;
+  opacity: 0.6;
+}
+html[data-theme="dark"] .learning-bottom {
+  border-color: #ffffff25;
+}
+html[data-theme="dark"] .tree-symbol i {
+  background: #78998a;
+}
+html[data-theme="dark"] .contact-section {
+  background: #101c2b;
+}
+html[data-theme="dark"] .contact-section .eyebrow,
+html[data-theme="dark"] .email-link,
+html[data-theme="dark"] .copy-wechat,
+html[data-theme="dark"] .copy-status {
+  color: #b4d4f9;
+}
+html[data-theme="dark"] .contact-links > a,
+html[data-theme="dark"] .copy-label {
+  border-color: #42526a;
+}
+html[data-theme="dark"] .profile-subtitle,
+html[data-theme="dark"] .profile section p {
+  color: var(--muted);
+}
+html[data-theme="dark"] .profile section {
+  border-color: var(--line);
+}
 @media print {
   .site-header,
   .hero-art,
@@ -1865,6 +2012,25 @@ h2 {
   }
   .section-heading {
     margin-bottom: 20px;
+  }
+  html[data-theme="dark"] {
+    --bg: #fff;
+    --paper: #fff;
+    --ink: #1d1d1f;
+    --muted: #555;
+    --blue: #0066cc;
+    --line: #dedee3;
+    color-scheme: light;
+  }
+  html[data-theme="dark"] .profile h1 span,
+  html[data-theme="dark"] .profile .row span,
+  html[data-theme="dark"] .profile-note,
+  html[data-theme="dark"] .profile-subtitle,
+  html[data-theme="dark"] .profile section p {
+    color: #555;
+  }
+  html[data-theme="dark"] .profile section {
+    border-color: #dedee3;
   }
 }
 

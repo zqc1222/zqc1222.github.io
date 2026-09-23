@@ -3,6 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f5f7" />
+    <script>
+      try {
+        if (localStorage.getItem("site-theme") === "dark")
+          document.documentElement.dataset.theme = "dark";
+      } catch {}
+    </script>
     <meta
       name="description"
       content="张群策的个人概览：教育背景、研究经历、工程实践与联系方式。"
@@ -24,6 +31,11 @@
       }
       .profile-nav button {
         border: 0;
+      }
+      .profile-tools {
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
       .profile h1 {
         font-size: 43px;
@@ -167,10 +179,20 @@
   <body>
     <main class="profile wrap">
       <div class="profile-nav">
-        <a class="text-link" href="./index.html">← 返回主页</a
-        ><button class="button primary" type="button" data-print>
-          打印 / 存为 PDF
-        </button>
+        <a class="text-link" href="./index.html">← 返回主页</a>
+        <div class="profile-tools">
+          <button
+            class="theme-toggle"
+            type="button"
+            aria-label="切换到夜间模式"
+            title="切换到夜间模式"
+          >
+            <span aria-hidden="true">☾</span>
+          </button>
+          <button class="button primary" type="button" data-print>
+            打印 / 存为 PDF
+          </button>
+        </div>
       </div>
       <h1>张群策 <span>Laurence Zhang</span></h1>
       <p class="profile-subtitle">

@@ -4,6 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f5f5f7" />
+    <script>
+      try {
+        if (localStorage.getItem("site-theme") === "dark")
+          document.documentElement.dataset.theme = "dark";
+      } catch {}
+    </script>
     <meta
       name="description"
       content="张群策 Laurence Zhang，东北大学秦皇岛分校计算机科学与技术专业 2025 级本科生。关注大模型智能体与 AI for Science，参与化学智能体研究，记录图像配准、科学数据处理与课程学习。"
@@ -45,7 +51,16 @@
             target="_blank"
             rel="noopener noreferrer"
             >学校官网 ↗</a
-          ><a class="nav-contact" href="#contact"
+          >
+          <button
+            class="theme-toggle"
+            type="button"
+            aria-label="切换到夜间模式"
+            title="切换到夜间模式"
+          >
+            <span aria-hidden="true">☾</span>
+          </button>
+          <a class="nav-contact" href="#contact"
             >联系我 <span aria-hidden="true">↗</span></a
           >
         </nav>
@@ -72,17 +87,6 @@
               class="desktop-break"
             />从化学任务出发，在研究与实践中探索。
           </p>
-          <a
-            class="hero-school-link"
-            href="https://www.neuq.edu.cn/"
-            target="_blank"
-            rel="noopener noreferrer"
-            ><span class="school-link-cn">东北大学秦皇岛分校</span>
-            <span class="school-link-en"
-              >Northeastern University at Qinhuangdao</span
-            >
-            <span class="school-link-arrow" aria-hidden="true">↗</span></a
-          >
           <div class="hero-actions">
             <a class="button primary" href="#research"
               >了解我的研究 <span aria-hidden="true">↗</span></a

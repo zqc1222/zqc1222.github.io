@@ -1,4 +1,33 @@
 const menuButton = document.querySelector(".menu-toggle");
+const themeButton = document.querySelector(".theme-toggle");
+function updateThemeButton() {
+  const dark = document.documentElement.dataset.theme === "dark";
+  if (themeButton) {
+    themeButton.setAttribute(
+      "aria-label",
+      dark ? "切换到日间模式" : "切换到夜间模式",
+    );
+    themeButton.setAttribute(
+      "title",
+      dark ? "切换到日间模式" : "切换到夜间模式",
+    );
+    themeButton.setAttribute("aria-pressed", String(dark));
+    themeButton.querySelector("span").textContent = dark ? "☀" : "☾";
+  }
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", dark ? "#080d16" : "#f5f5f7");
+}
+updateThemeButton();
+themeButton?.addEventListener("click", () => {
+  const dark = document.documentElement.dataset.theme !== "dark";
+  if (dark) document.documentElement.dataset.theme = "dark";
+  else delete document.documentElement.dataset.theme;
+  try {
+    localStorage.setItem("site-theme", dark ? "dark" : "light");
+  } catch {}
+  updateThemeButton();
+});
 const navigation = document.querySelector("#navigation");
 function closeMenu() {
   menuButton?.setAttribute("aria-expanded", "false");
