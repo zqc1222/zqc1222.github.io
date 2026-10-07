@@ -1,4 +1,4 @@
-# Laurence Zhang · Personal website
+# Qunce Zhang · Personal website
 
 张群策的科研个人主页，面向大模型智能体与 AI for Science 方向。
 
