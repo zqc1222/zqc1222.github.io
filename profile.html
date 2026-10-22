@@ -37,28 +37,72 @@
         align-items: center;
         gap: 10px;
       }
+      .profile-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 174px;
+        grid-template-areas:
+          "name portrait"
+          "education portrait"
+          "contact portrait";
+        align-items: center;
+        column-gap: 48px;
+        row-gap: 18px;
+      }
       .profile h1 {
+        grid-area: name;
         font-size: 43px;
       }
       .profile h1 span {
         display: block;
-        font-size: 24px;
-        color: #85858d;
-        margin-top: 8px;
-        font-weight: 450;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 27px;
+        color: var(--muted);
+        margin-top: 10px;
+        font-weight: 400;
+        letter-spacing: -0.025em;
+      }
+      .profile-portrait {
+        grid-area: portrait;
+        width: 100%;
+        margin: 0;
+        padding: 7px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper);
+        box-shadow: 0 12px 32px #1522380b;
+      }
+      .profile-portrait img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+        border-radius: 11px;
+        background: #e8e7e3;
       }
       .profile-subtitle {
-        color: #6e6e73;
-        margin-top: 20px;
+        grid-area: education;
+        color: var(--muted);
         font-size: 14px;
       }
+      .profile-degree {
+        display: block;
+        margin-top: 4px;
+      }
       .profile-contact {
+        grid-area: contact;
         display: flex;
         flex-wrap: wrap;
-        gap: 10px 24px;
-        margin-top: 16px;
+        gap: 8px 22px;
         font-size: 12px;
-        color: #0066cc;
+        color: var(--blue);
+      }
+      .profile-contact a,
+      .profile-contact > span {
+        padding-block: 3px;
+      }
+      .profile-contact a:hover {
+        text-decoration: underline;
+        text-underline-offset: 4px;
       }
       .profile section {
         margin-top: 36px;
@@ -106,8 +150,32 @@
         .profile-nav {
           margin-bottom: 35px;
         }
+        .profile-header {
+          grid-template-columns: minmax(0, 1fr) 108px;
+          grid-template-areas:
+            "name portrait"
+            "education education"
+            "contact contact";
+          column-gap: 20px;
+          row-gap: 20px;
+        }
         .profile h1 {
-          font-size: 35px;
+          font-size: 34px;
+        }
+        .profile h1 span {
+          font-size: 22px;
+          margin-top: 9px;
+        }
+        .profile-portrait {
+          padding: 5px;
+          border-radius: 13px;
+          box-shadow: 0 8px 24px #15223809;
+        }
+        .profile-portrait img {
+          border-radius: 8px;
+        }
+        .profile-contact {
+          gap: 8px 20px;
         }
         .profile .row {
           display: block;
@@ -130,6 +198,26 @@
         .profile-nav {
           display: none;
         }
+        .profile-header {
+          grid-template-columns: minmax(0, 1fr) 25mm;
+          grid-template-areas:
+            "name portrait"
+            "education portrait"
+            "contact portrait";
+          column-gap: 8mm;
+          row-gap: 3mm;
+          break-inside: avoid;
+        }
+        .profile-portrait {
+          padding: 1mm;
+          border-radius: 2mm;
+          box-shadow: none;
+          border-color: #dedee3;
+          background: #fff;
+        }
+        .profile-portrait img {
+          border-radius: 1mm;
+        }
         .profile h1 {
           font-size: 24pt !important;
         }
@@ -137,14 +225,19 @@
           display: inline;
           font-size: 14pt;
           margin-left: 15px;
+          margin-top: 0;
         }
         .profile-subtitle {
           font-size: 10pt;
-          margin-top: 12px;
+          margin-top: 0;
         }
         .profile-contact {
           font-size: 9pt;
-          margin-top: 8px;
+          gap: 2mm 5mm;
+        }
+        .profile-contact a,
+        .profile-contact > span {
+          padding: 0;
         }
         .profile section {
           margin-top: 17px;
@@ -194,31 +287,43 @@
           </button>
         </div>
       </div>
-      <h1>张群策 <span>Qunce Zhang</span></h1>
-      <p class="profile-subtitle">
-        <a
-          class="inline-link"
-          href="https://www.neuq.edu.cn/"
-          target="_blank"
-          rel="noopener noreferrer"
-          >东北大学秦皇岛分校</a
-        >
-        · 计算机科学与技术 · 2025 级本科生
-      </p>
-      <div class="profile-contact">
-        <a href="mailto:zhangqunce90@gmail.com">zhangqunce90@gmail.com</a
-        ><a
-          href="https://www.neuq.edu.cn/"
-          target="_blank"
-          rel="noopener noreferrer"
-          >学校官网 ↗</a
-        ><a
-          href="https://github.com/zqc1222"
-          target="_blank"
-          rel="noopener noreferrer"
-          >github.com/zqc1222 ↗</a
-        ><span>微信：zqc2568137147</span>
-      </div>
+      <header class="profile-header">
+        <h1>张群策 <span>Qunce Zhang</span></h1>
+        <figure class="profile-portrait">
+          <img
+            src="./assets/qunce-portrait-gray-v1.webp"
+            alt="张群策的个人照片"
+            width="810"
+            height="1080"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </figure>
+        <p class="profile-subtitle">
+          <a
+            class="inline-link"
+            href="https://www.neuq.edu.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >东北大学秦皇岛分校</a
+          >
+          <span class="profile-degree">计算机科学与技术 · 2025 级本科生</span>
+        </p>
+        <div class="profile-contact">
+          <a href="mailto:zhangqunce90@gmail.com">zhangqunce90@gmail.com</a
+          ><a
+            href="https://www.neuq.edu.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >学校官网 ↗</a
+          ><a
+            href="https://github.com/zqc1222"
+            target="_blank"
+            rel="noopener noreferrer"
+            >github.com/zqc1222 ↗</a
+          ><span>微信：zqc2568137147</span>
+        </div>
+      </header>
       <section>
         <h2>研究兴趣</h2>
         <p>
