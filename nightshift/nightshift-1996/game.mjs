@@ -79,7 +79,7 @@ export class NightShift {
   resize(){this.renderer.setSize(innerWidth,innerHeight);this.renderer.setPixelRatio(this.settings.quality==='low'?.8:Math.min(devicePixelRatio,1.5));this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();document.body.classList.toggle('reduce-motion',!this.settings.shake);const wantShadow=this.settings.quality!=='low';if(wantShadow!==this.shadowOn){this.shadowOn=wantShadow;this.renderer.shadowMap.enabled=wantShadow;if(this.flashlight)this.flashlight.castShadow=wantShadow;this.applyShadows();this.refreshMaterials();}if(this.portraitRenderer)this.resizePortrait();}
   save(){this.saved.notes=this.notes.filter(n=>n.level<this.saved.checkpoint);if(!setItem(SAVE_KEY,JSON.stringify({...this.saved,version:1})))this.warnStorage();}
   saveSettings(){setItem(SAVE_KEY+'-settings',JSON.stringify(this.settings));this.sound.setVolume(this.settings.volume);this.resize();}
-  clearInput(){this.keys.clear();this.dragging=false;this.cranking=false;}
+  clearInput(){this.touchResets?.forEach(reset=>reset());this.keys.clear();this.touchRun=false;this.touchSprintHeld=false;this.dragging=false;this.cranking=false;}
   releaseMouse(){this.clearInput();if(lockElement())exitLock();}
   captureMouse(){if(this.phase!=='play')return;const el=$('game'),fail=()=>{$('lookFallback').classList.remove('hidden');};try{const fn=el.requestPointerLock||el.webkitRequestPointerLock||el.mozRequestPointerLock;if(typeof fn!=='function'){fail();return;}const p=fn.call(el);if(p&&typeof p.catch==='function')p.catch(fail);}catch{fail();}}
   bindInput(){
@@ -92,12 +92,10 @@ export class NightShift {
     document.addEventListener('visibilitychange',()=>{if(document.hidden&&this.phase==='play')this.pause();});
     addEventListener('keydown',e=>{
       if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)){if(e.code==='Escape'){e.preventDefault();if(this.phase==='menu')this.showMenu();else if(this.phase==='paused'){this.phase='play';this.pause();}else if(this.phase==='dialog')this.resume();}return;}
+      if(this.touchMode&&e.target.closest?.('button')&&['Space','Enter','Tab'].includes(e.code))return;
       const _navPhase=['paused','dialog','journal','menu','death','ending','transition','intro','gallery','achievements','achvConfirm'].includes(this.phase);if(!_navPhase&&['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(e.code))e.preventDefault();
       if(e.code==='Escape'){e.preventDefault();if(this.phase==='play')this.pause();else if(['paused','dialog','journal'].includes(this.phase))this.resume();else if(this.phase==='gallery')this.closeGallery();else if(this.phase==='achievements')this.closeAchievements();else if(this.phase==='achvConfirm')this.openAchievements();return;}
-      if(this.phase!=='play')return;this.keys.add(e.code);if(e.repeat)return;
-      if(e.code==='KeyE')this.interact();if(e.code==='KeyF'){this.flashOn=!this.flashOn;this.sound.tone(900,.04,.04);}
-      if(e.code==='KeyC'&&!this.hiding){this.crouch=!this.crouch;this.toast(this.crouch?'蹲下：脚步更轻，但移动更慢。':'站起。');}
-      if(e.code==='KeyQ')this.throwCan();if(e.code==='KeyT')this.journal();if(e.code==='KeyH'){this.hintUntil=this.elapsed+14;this.updateHint();}
+      this.pressAction(e.code,e.repeat);
     });
     addEventListener('keyup',e=>this.keys.delete(e.code));
     $('game').addEventListener('pointerdown',e=>{if(this.phase==='play'&&e.button===0&&e.pointerType!=='touch'){this.dragging=true;this.captureMouse();}});
@@ -107,6 +105,20 @@ export class NightShift {
     $('continueGame').onclick=()=>{this.sound.start();this.notes=[...this.saved.notes];this.startLevel(this.saved.checkpoint,true,this.ckptHasSave(this.saved.checkpoint));};
     $('chapterButton').onclick=()=>this.chapters();$('settingsButton').onclick=()=>this.settingsPanel('menu');$('galleryButton').onclick=()=>this.openGallery();$('galleryBack').onclick=()=>this.closeGallery();
     $('achievementsButton').onclick=()=>this.openAchievements();$('achvBack').onclick=()=>this.closeAchievements();$('achvReset').onclick=()=>this.achvReset();$('achvExport').onclick=()=>this.achvExport();
+  }
+  pressAction(code,repeat=false){
+    if(this.phase!=='play'||this.portraitBlocked)return;
+    this.keys.add(code);if(repeat)return;
+    if(code==='KeyE'){
+      if(this.touchMode&&!this.hiding&&!this.nearestObject())this.toast('靠近物品，再点击互动。',2);
+      else this.interact();
+    }
+    if(code==='KeyF'){this.flashOn=!this.flashOn;this.sound.tone(900,.04,.04);}
+    if(code==='KeyC'&&!this.hiding){this.crouch=!this.crouch;this.toast(this.crouch?'蹲下：脚步更轻，但移动更慢。':'站起。');}
+    if(code==='KeyQ')this.throwCan();
+    if(code==='KeyT')this.journal();
+    if(code==='KeyH'){this.hintUntil=this.elapsed+14;this.updateHint();}
+    this.syncTouchControls?.();
   }
   loadLevel(index){
     if(this.world){this.scene.remove(this.world);disposeModel(this.world);}if(this.enemy){this.scene.remove(this.enemy.mesh);disposeModel(this.enemy.mesh);}if(this.duplicate){this.scene.remove(this.duplicate);disposeModel(this.duplicate);}this.clearScare();
@@ -260,7 +272,8 @@ updateCamera(dt){const bob=this.settings.shake&&this.phase==='play'&&this.moving
   updateDust(dt){if(!this.dust||dt<=0)return;const a=this.dust.geometry.attributes.position,p=this.player,half=9,top=3.3,span=half*2;for(let i=0;i<a.count;i++){let x=a.getX(i)+this.dustDrift[i*3]*dt,y=a.getY(i)+this.dustDrift[i*3+1]*dt,z=a.getZ(i)+this.dustDrift[i*3+2]*dt;if(x<p.x-half)x+=span;else if(x>p.x+half)x-=span;if(z<p.z-half)z+=span;else if(z>p.z+half)z-=span;if(y>top)y=.06;else if(y<.02)y=top;a.setXYZ(i,x,y,z);}a.needsUpdate=true;}
   nearestObject(){let best=null,bestScore=Infinity;const eye=this.camera.position.clone(),dir=this.camera.getWorldDirection(new THREE.Vector3());for(const o of this.level.objects){if(o.decor||(o.kind==='can'&&this.flags[o.id]))continue;const pos=v3(o.x*TILE+(o.offsetX||0),o.kind==='can'?.28:1.3,o.z*TILE+(o.offsetZ||0)),distance=Math.hypot(pos.x-this.player.x,pos.z-this.player.z);const facing=pos.clone().sub(eye).normalize().dot(dir);if(distance>3.15||facing<-.15||!this.lineOfSight(eye,pos,false,false))continue;const score=distance-facing*.65;if(score<bestScore){best=o;bestScore=score;}}return best;}
   updateHUD(){const [target,text]=currentObjective(this.index,this.flags);const ot=$('objectiveText');if(ot.textContent!==text){ot.textContent=text;const box=$('objective');if(box){box.classList.remove('is-new');void box.offsetWidth;box.classList.add('is-new');clearTimeout(this.objTimer);this.objTimer=setTimeout(()=>box.classList.remove('is-new'),2600);}}$('stamina').style.width=this.stamina+'%';$('posture').textContent=t(this.hiding?'躲藏':this.crouch?'蹲伏':'站立');$('flashState').textContent=t('手电 {state}',{state:this.flashOn&&!this.hiding?'ON':'OFF'});const canEl=$('cans');if(canEl){canEl.textContent=t('空罐 ×{n}',{n:this.cans||0});canEl.classList.toggle('none',!this.cans);}
-    this.target=this.hiding?null:this.nearestObject();$('interact').classList.toggle('hidden',!this.target||this.hiding||this.phase!=='play');if(this.target){let title=this.target.title;if(this.target.id==='curtain')title=this.flags.curtainClosed?'拉开右侧隔帘':'拉上右侧隔帘';if(this.target.id==='crank')title=this.flags.gate?'卷帘门已开启':'按住 E 转动手轮';if(this.target.id==='fuse'&&this.flags.fuse)title='保险芯已取走';if(this.target.kind==='panel')title=this.flags[this.target.id]?'关上门（门轴声会吸引它）':'推开门（门轴声会吸引它）';$('interact').querySelector('span').textContent=t(title);}
+    this.syncTouchControls?.();
+    this.target=this.hiding?null:this.nearestObject();$('interact').classList.toggle('hidden',!this.target||this.hiding||this.phase!=='play');if(this.target){let title=this.target.title;if(this.target.id==='curtain')title=this.flags.curtainClosed?'拉开右侧隔帘':'拉上右侧隔帘';if(this.target.id==='crank')title=this.flags.gate?'卷帘门已开启':'按住 E 转动手轮';if(this.target.id==='fuse'&&this.flags.fuse)title='保险芯已取走';if(this.target.kind==='panel')title=this.flags[this.target.id]?'关上门（门轴声会吸引它）':'推开门（门轴声会吸引它）';$('interact').querySelector('span').textContent=t(this.touchMode&&this.target.id==='crank'&&!this.flags.gate?'按住转动手轮':title);}
     $('hold').classList.toggle('hidden',this.target?.id!=='crank'||!this.flags.power||this.flags.gate);$('hold').querySelector('i').style.width=(this.crankProgress/5*100)+'%';
     const dangerOn=!!this.enemy?.active&&['chase','search','searchHide'].includes(this.enemy.state);$('danger').classList.toggle('hidden',!dangerOn);if(dangerOn)$('danger').dataset.state=this.enemy.state;else delete $('danger').dataset.state;
     if(this.toastUntil&&this.elapsed>this.toastUntil)$('toast').classList.add('hidden');if(this.subtitleUntil&&this.elapsed>this.subtitleUntil)$('subtitle').classList.add('hidden');
@@ -293,7 +306,7 @@ updateCamera(dt){const bob=this.settings.shake&&this.phase==='play'&&this.moving
     }
     if(o.id==='power'){if(this.flags.power){this.toast('线路稳定。排风开，监控关，卷帘门开。');return;}if(!this.flags.fuse){this.toast('保险芯烧断了。保安台的交接记录可能有线索。');return;}this.powerPuzzle();return;}
     if(o.id==='horn'){if(this.hornCooldown>0){this.toast('喇叭的接触不良，等几秒再试。');return;}this.sound.horn();this.makeNoise(70,v3(o.x*TILE,0,o.z*TILE),true);this.hornCooldown=9;this.toast('蓝车喇叭响了。巡逻者会去声音的位置查看。');return;}
-    if(o.id==='crank'){if(!this.flags.power)this.toast('手轮卡死了。先恢复卷帘门电路。');else if(!this.flags.gate)this.toast('按住 E 持续转动。松手后进度会保留。',2);return;}
+    if(o.id==='crank'){if(!this.flags.power)this.toast('手轮卡死了。先恢复卷帘门电路。');else if(!this.flags.gate)this.toast(this.touchMode?'按住互动持续转动，松手保留进度。':'按住 E 持续转动。松手后进度会保留。',2);return;}
     if(o.id==='curtain'){if(!this.flags.curtainClosed&&Math.abs(this.player.x-33)<.48&&Math.abs(this.player.z-18)<1.8){this.toast('你站在隔帘轨道下。往走廊退一步，再把帘子拉上。');return;}this.flags.curtainClosed=!this.flags.curtainClosed;const cloth=this.objectMeshes.get('curtain').userData.cloth;cloth.scale.x=this.flags.curtainClosed?1:.08;cloth.position.x=this.flags.curtainClosed?0:1.35;this.sound.noise(.35,.18,400);this.toast(this.flags.curtainClosed?'隔帘已关闭。布料能挡住直接目视。':'隔帘已拉开。右侧病房的视线现在是通的。');return;}
     if(o.id==='hospitalPower'){
       if(!this.flags.chart){this.toast('电箱贴着纸条：先看左侧 017 号病历。');return;}if(this.flags.hospitalPower){this.toast('电力已经恢复。右侧病房里有人。');return;}
@@ -432,21 +445,24 @@ NightShift.prototype.setupTouch=function(){
   const stick=$('stick'),knob=stick?stick.firstElementChild:null,look=$('lookPad'),held=['KeyW','KeyS','KeyA','KeyD','ShiftLeft'];
   if(stick){
     let id=null,cx=0,cy=0;
-    const apply=(dx,dy)=>{const r=Math.max(28,stick.clientWidth*.34),len=Math.hypot(dx,dy)||1,k=Math.min(1,len/r),ux=dx/len*k,uy=dy/len*k;if(knob)knob.style.transform='translate('+(ux*r).toFixed(1)+'px,'+(uy*r).toFixed(1)+'px)';const set=(c,on)=>{on?this.keys.add(c):this.keys.delete(c);};set('KeyW',uy<-.28);set('KeyS',uy>.28);set('KeyA',ux<-.28);set('KeyD',ux>.28);this.touchRun=k>.85;set('ShiftLeft',this.touchRun);};
-    const stop=()=>{id=null;if(knob)knob.style.transform='';held.forEach(c=>this.keys.delete(c));};
+    const apply=(dx,dy)=>{const r=Math.max(28,stick.clientWidth*.34),len=Math.hypot(dx,dy)||1,k=Math.min(1,len/r),ux=dx/len*k,uy=dy/len*k;if(knob)knob.style.transform='translate('+(ux*r).toFixed(1)+'px,'+(uy*r).toFixed(1)+'px)';const set=(c,on)=>{on?this.keys.add(c):this.keys.delete(c);};set('KeyW',uy<-.28);set('KeyS',uy>.28);set('KeyA',ux<-.28);set('KeyD',ux>.28);this.touchRun=k>.85;set('ShiftLeft',this.touchRun||this.touchSprintHeld);};
+    const stop=()=>{const old=id;id=null;if(old!==null&&stick.hasPointerCapture?.(old))stick.releasePointerCapture(old);if(knob)knob.style.transform='';this.touchRun=false;held.forEach(c=>this.keys.delete(c));if(this.touchSprintHeld)this.keys.add('ShiftLeft');};
     this.touchResets.push(stop);
-    stick.addEventListener('pointerdown',e=>{if(id!==null)return;id=e.pointerId;const b=stick.getBoundingClientRect();cx=b.left+b.width/2;cy=b.top+b.height/2;if(stick.setPointerCapture)stick.setPointerCapture(id);e.preventDefault();apply(e.clientX-cx,e.clientY-cy);});
+    stick.addEventListener('pointerdown',e=>{if(id!==null||this.phase!=='play'||this.portraitBlocked)return;id=e.pointerId;const b=stick.getBoundingClientRect();cx=b.left+b.width/2;cy=b.top+b.height/2;if(stick.setPointerCapture)stick.setPointerCapture(id);e.preventDefault();apply(e.clientX-cx,e.clientY-cy);});
     stick.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;apply(e.clientX-cx,e.clientY-cy);e.preventDefault();});
     stick.addEventListener('pointerup',e=>{if(e.pointerId===id)stop();});
     stick.addEventListener('pointercancel',e=>{if(e.pointerId===id)stop();});
+    stick.addEventListener('lostpointercapture',e=>{if(e.pointerId===id)stop();});
   }
   if(look){
     let id=null,lx=0,ly=0;
-    this.touchResets.push(()=>{id=null;});
-    look.addEventListener('pointerdown',e=>{if(id!==null)return;id=e.pointerId;lx=e.clientX;ly=e.clientY;if(look.setPointerCapture)look.setPointerCapture(id);});
-    look.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;const k=.0032;this.yaw-=(e.clientX-lx)*k;this.pitch=clamp(this.pitch-(e.clientY-ly)*k,-1.35,1.35);lx=e.clientX;ly=e.clientY;});
-    look.addEventListener('pointerup',e=>{if(e.pointerId===id)id=null;});
-    look.addEventListener('pointercancel',e=>{if(e.pointerId===id)id=null;});
+    const stopLook=()=>{const old=id;id=null;if(old!==null&&look.hasPointerCapture?.(old))look.releasePointerCapture(old);};
+    this.touchResets.push(stopLook);
+    look.addEventListener('pointerdown',e=>{if(id!==null||this.phase!=='play'||this.portraitBlocked)return;id=e.pointerId;lx=e.clientX;ly=e.clientY;if(look.setPointerCapture)look.setPointerCapture(id);});
+    look.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;const k=.0032;this.yaw-=(e.clientX-lx)*k;this.pitch=clamp(this.pitch-(e.clientY-ly)*k,-1.35,1.35);if(this.hiding)this.yaw=clamp(this.yaw,this.hideYaw-.85,this.hideYaw+.85);lx=e.clientX;ly=e.clientY;});
+    look.addEventListener('pointerup',e=>{if(e.pointerId===id)stopLook();});
+    look.addEventListener('pointercancel',e=>{if(e.pointerId===id)stopLook();});
+    look.addEventListener('lostpointercapture',e=>{if(e.pointerId===id)stopLook();});
   }
   const zone=$('gestureZone');
   if(zone){
@@ -462,12 +478,61 @@ NightShift.prototype.setupTouch=function(){
       if(dt<280&&Math.abs(dx)<14&&Math.abs(dy)<14){const now=performance.now();if(now-tapAt<340){tapAt=0;this.pause();}else tapAt=now;}
     });
   }
-  const fire=(type,code)=>dispatchEvent(new KeyboardEvent(type,{code}));
-  const momentary=(el,code)=>{if(!el)return;const down=e=>{e.preventDefault();fire('keydown',code);el.setAttribute('aria-pressed','true');};const up=e=>{if(e)e.preventDefault();fire('keyup',code);el.setAttribute('aria-pressed','false');};el.addEventListener('pointerdown',down);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('pointerleave',up);};
-  momentary($('tUse'),'KeyE');momentary($('tRun'),'ShiftLeft');momentary($('tNote'),'KeyT');momentary($('tHint'),'KeyH');momentary($('tThrow'),'KeyQ');
-  const toggle=(el,code,read)=>{if(!el)return;el.addEventListener('pointerdown',e=>{e.preventDefault();fire('keydown',code);setTimeout(()=>el.setAttribute('aria-pressed',String(!!read())),0);});el.setAttribute('aria-pressed',String(!!read()));};
-  toggle($('tCrouch'),'KeyC',()=>this.crouch);toggle($('tFlash'),'KeyF',()=>this.flashOn);
-  const pause=$('tPause');if(pause)pause.addEventListener('click',e=>{e.preventDefault();if(this.phase==='play')this.pause();else if(this.phase==='paused')this.resume();});
+  // Pointer releases work for secondary fingers too; click alone can be missing
+  // while the primary finger holds the joystick. Native clicks cover accessibility.
+  const control=(el,code,canHold=()=>false)=>{
+    let pointer=null,holding=false;
+    const invoke=()=>{
+      if(code==='Escape')this.pause();
+      else {this.pressAction(code);this.keys.delete(code);}
+    };
+    const stop=()=>{
+      const old=pointer;pointer=null;holding=false;this.keys.delete(code);
+      if(code==='ShiftLeft'){this.touchSprintHeld=false;if(this.touchRun)this.keys.add(code);}
+      el.classList.remove('is-held');
+      if(old!==null&&el.hasPointerCapture?.(old))el.releasePointerCapture(old);
+    };
+    this.touchResets.push(stop);
+    el.addEventListener('pointerdown',e=>{
+      if(pointer!==null||this.phase!=='play'||this.portraitBlocked)return;
+      e.preventDefault();pointer=e.pointerId;holding=canHold();
+      try{el.setPointerCapture(pointer);}catch{}
+      el.classList.add('is-held');
+      if(holding){
+        if(code==='ShiftLeft')this.touchSprintHeld=true;
+        this.pressAction(code);
+      }
+    });
+    el.addEventListener('pointerup',e=>{
+      if(e.pointerId!==pointer)return;
+      const r=el.getBoundingClientRect();
+      const activate=!holding&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      stop();if(activate)invoke();
+    });
+    for(const type of ['pointercancel','lostpointercapture'])el.addEventListener(type,e=>{if(e.pointerId===pointer)stop();});
+    el.addEventListener('click',e=>{
+      e.preventDefault();
+      if(e.detail===0&&!e.pointerType&&code!=='ShiftLeft')invoke();
+    });
+    if(code==='ShiftLeft'){
+      el.addEventListener('keydown',e=>{if(['Space','Enter'].includes(e.code)){e.preventDefault();this.pressAction(code);}});
+      el.addEventListener('keyup',e=>{if(['Space','Enter'].includes(e.code)){e.preventDefault();stop();}});
+    }
+  };
+  for(const [id,code] of [['tFlash','KeyF'],['tCrouch','KeyC'],['tNote','KeyT'],['tHint','KeyH'],['tThrow','KeyQ'],['tPause','Escape']])control($(id),code);
+  control($('tRun'),'ShiftLeft',()=>true);
+  control($('tUse'),'KeyE',()=>this.nearestObject()?.id==='crank'&&!this.hiding);
+  const prompt=$('interact');
+  touch.append(prompt); // Above the look surface so the visible prompt is really tappable.
+  prompt.querySelector('kbd').textContent=t('轻触');
+  control(prompt,'KeyE',()=>this.nearestObject()?.id==='crank'&&!this.hiding);
+  this.syncTouchControls=()=>{
+    $('tFlash').setAttribute('aria-pressed',String(this.flashOn));
+    $('tCrouch').setAttribute('aria-pressed',String(this.crouch));
+    $('tUse').classList.toggle('is-ready',!!this.target||!!this.hiding);
+    $('tUse').querySelector('.control-label').textContent=t(this.hiding?'离开':this.target?.id==='crank'?'按住':'互动');
+  };
+  this.syncTouchControls();
   // Rotation is a pause boundary: discard held touches and never auto-resume.
   const portrait=matchMedia('(orientation:portrait)');
   const notice=$('rotateNotice');

@@ -513,5 +513,13 @@
   "成就进度仅保存在本机浏览器，不上传。": "Achievement progress is kept only in this browser and never uploaded.",
   "请横过手机，接通夜班": "Turn your phone to begin the shift",
   "本游戏采用横屏操作。请关闭手机的方向锁定，再将手机横放。": "Play in landscape. Turn off your phone’s orientation lock, then rotate your phone.",
-  "竖屏时游戏会暂停，横屏后点击继续。": "Portrait mode pauses the game. Rotate back, then tap Continue."
+  "竖屏时游戏会暂停，横屏后点击继续。": "Portrait mode pauses the game. Rotate back, then tap Continue.",
+  "轻触": "Tap",
+  "靠近物品，再点击互动。": "Move closer to an object, then tap Interact.",
+  "按住转动手轮": "Hold to turn the crank",
+  "按住互动持续转动，松手保留进度。": "Hold Interact to turn. Release to keep your progress.",
+  "按住": "Hold",
+  "离开": "Leave",
+  "夜班工具": "Shift tools",
+  "按住奔跑": "Hold to sprint"
 }

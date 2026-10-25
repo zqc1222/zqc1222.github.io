@@ -298,3 +298,43 @@ body.portrait-blocked #touch{display:none}
   body.touch-ui .gallery-copy h2{font-size:32px;margin:8px 0}
   body.touch-ui .gallery-copy p{font-size:11px;line-height:1.6;margin:6px 0}
 }
+
+/* Quiet instrument-style touch controls: keep the room visible between actions. */
+body.touch-ui #touch{user-select:none;-webkit-user-select:none}
+body.touch-ui #lookPad{width:62%;height:100%}
+body.touch-ui #touchButtons{display:block;width:198px;height:130px;right:max(16px,env(safe-area-inset-right));bottom:max(28px,env(safe-area-inset-bottom));padding:0}
+body.touch-ui #touchButtons button,body.touch-ui #touchUtility button{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;width:50px;height:50px;min-width:0;min-height:0;padding:5px;border:1px solid rgba(206,211,184,.28);border-radius:50%;background:rgba(12,24,18,.48);color:#d0d4bf;font-size:9px;letter-spacing:0;touch-action:none;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 10px #0002;pointer-events:auto}
+body.touch-ui #touchButtons button{position:absolute}
+body.touch-ui #touchButtons svg,body.touch-ui #touchUtility svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+body.touch-ui #touchButtons .control-label,body.touch-ui #touchUtility .control-label{pointer-events:none;line-height:1}
+body.touch-ui #touchButtons button:active,body.touch-ui #touchButtons button.is-held,body.touch-ui #touchUtility button:active{background:#bfc8a8;color:#152119;transform:scale(.96)}
+body.touch-ui #touchButtons button[aria-pressed="true"]{color:#e0c790;border-color:#bca875;background:rgba(111,98,59,.2)}
+body.touch-ui #touchButtons #tUse{right:0;bottom:12px;width:72px;height:72px;font-size:12px;border:1px solid #bdc6a573;outline:1px solid #bdc6a51f;outline-offset:4px;background:rgba(12,24,18,.6)}
+body.touch-ui #touchButtons #tUse svg{width:25px;height:25px}
+body.touch-ui #touchButtons #tUse.is-ready{border-color:#d9c58e;color:#f1dfb0;background:rgba(104,86,47,.24)}
+body.touch-ui #tRun{left:0;bottom:0}
+body.touch-ui #tCrouch{left:62px;bottom:0}
+body.touch-ui #tThrow{left:0;bottom:64px}
+body.touch-ui #tFlash{left:62px;bottom:64px}
+body.touch-ui #touchUtility{position:absolute;right:max(128px,calc(env(safe-area-inset-right) + 112px));top:max(12px,env(safe-area-inset-top));display:flex;gap:8px;pointer-events:none}
+body.touch-ui #touchUtility button{width:44px;height:44px;border-radius:9px;border-color:#cdd3b622;background:rgba(12,24,18,.38)}
+body.touch-ui #touchUtility svg{width:18px;height:18px}
+body.touch-ui #interact{pointer-events:auto;touch-action:none;max-width:52vw;white-space:normal;display:flex;align-items:center;gap:10px;top:53%;padding:9px 14px;border-radius:6px;border-color:#d9c58e66;background:rgba(13,24,17,.8);font-size:12px;letter-spacing:0;min-height:44px;text-align:left;color:#e4dcc4}
+body.touch-ui #interact kbd{border:0;background:transparent;margin:0;padding:0;font-size:10px;color:#c7b883;white-space:nowrap}
+body.touch-ui #stick{width:100px;height:100px;background:rgba(12,24,18,.22);border-color:#cdd3b633}
+body.touch-ui #stick i{width:42px;height:42px;margin:-21px 0 0 -21px;background:#ccd1b62b;border-color:#cdd3b65c}
+@media (orientation:landscape) and (max-height:360px){
+  body.touch-ui #objective{top:65px;max-width:36vw;padding:5px 10px}
+  body.touch-ui #objective p{font-size:11px;margin-top:3px}
+  body.touch-ui #hud header{padding-top:9px}
+  body.touch-ui #place{font-size:14px;margin:3px 0}
+  body.touch-ui #touchButtons{bottom:max(22px,env(safe-area-inset-bottom))}
+  body.touch-ui #stick{width:88px;height:88px;bottom:max(24px,env(safe-area-inset-bottom))}
+  body.touch-ui #subtitle{bottom:43%;padding:4px 10px}
+}
+@media (orientation:landscape) and (max-width:650px){
+  body.touch-ui #touchUtility{right:max(104px,env(safe-area-inset-right));gap:5px}
+  body.touch-ui #chapterTag{font-size:8px}
+  body.touch-ui #place{font-size:12px}
+  body.touch-ui .hud-clock>span{font-size:18px}
+}

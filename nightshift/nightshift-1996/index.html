@@ -30,7 +30,7 @@
     <header><div><span id="chapterTag" class="eyebrow"></span><p id="place"></p></div><div class="hud-clock"><span id="clock"></span><small>REC <i></i></small></div></header>
     <div id="ruleAlert" class="hidden" aria-hidden="true"><b>规则更新</b><span id="ruleAlertText"></span></div>
     <div id="objective"><span class="obj-alert" aria-hidden="true">规则更新</span><span class="tiny-label">当前事项</span><p id="objectiveText" aria-live="polite" aria-atomic="true"></p></div>
-    <div id="crosshair" aria-hidden="true"></div><div id="interact" class="hidden"><kbd>E</kbd><span></span></div>
+    <div id="crosshair" aria-hidden="true"></div><button type="button" id="interact" class="hidden"><kbd>E</kbd><span></span></button>
     <div id="hold" class="hidden"><span>手轮进度</span><div><i></i></div><small>松开 E 可保留进度；附近的东西会听见。</small></div>
     <div id="subtitle" class="hidden" role="status"><span>内线 / 值班员</span><p></p></div>
     <div id="toast" class="hidden" role="status"></div>
@@ -74,15 +74,11 @@
     <div id="gestureZone" aria-hidden="true"></div>
     <div id="lookPad" aria-hidden="true"></div>
     <div id="stick" aria-hidden="true"><i></i></div>
+    <div id="touchUtility" role="group" aria-label="夜班工具">
+      <button type="button" id="tNote" aria-label="手记"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5V3ZM9 7h6m-6 5h6m-6 5h4M3 7h4m-4 5h4m-4 5h4"/></svg><span class="control-label">手记</span></button><button type="button" id="tHint" aria-label="引路"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 8 18-8-4-8 4L12 2Zm0 0v14"/></svg><span class="control-label">引路</span></button><button type="button" id="tPause" aria-label="暂停"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><span class="control-label">暂停</span></button>
+    </div>
     <div id="touchButtons" role="group" aria-label="触控操作">
-      <button type="button" id="tPause" aria-label="暂停" aria-keyshortcuts="Escape">暂停</button>
-      <button type="button" id="tUse" aria-label="互动，按住可转动手轮" aria-keyshortcuts="E">互动</button>
-      <button type="button" id="tRun" aria-label="奔跑" aria-pressed="false" aria-keyshortcuts="Shift">奔跑</button>
-      <button type="button" id="tCrouch" aria-label="蹲下" aria-pressed="false" aria-keyshortcuts="C">蹲下</button>
-      <button type="button" id="tFlash" aria-label="手电开关" aria-pressed="true" aria-keyshortcuts="F">手电</button>
-      <button type="button" id="tThrow" aria-label="扔出手里的空罐" aria-keyshortcuts="Q">扔 罐</button>
-      <button type="button" id="tNote" aria-label="手记" aria-keyshortcuts="T">手记</button>
-      <button type="button" id="tHint" aria-label="引路" aria-keyshortcuts="H">引路</button>
+      <button type="button" id="tUse" aria-label="互动，按住可转动手轮"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12V5a1.5 1.5 0 0 1 3 0v6-8a1.5 1.5 0 0 1 3 0v8-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-3 7-7 7h-1c-3 0-4-2-6-5l-3-4a1.5 1.5 0 0 1 2-2l3 3"/></svg><span class="control-label">互动</span></button><button type="button" id="tRun" aria-label="按住奔跑"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="15" cy="4" r="2"/><path d="m5 10 5-3 5 3 4 1M12 9l-3 6 5 3-2 4M9 15l-5 5"/></svg><span class="control-label">奔跑</span></button><button type="button" id="tCrouch" aria-label="蹲下" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="14" cy="4" r="2"/><path d="m12 8-4 6 7 2-2 5h6M11 10l5 2h5M8 14l-4 6"/></svg><span class="control-label">蹲下</span></button><button type="button" id="tFlash" aria-label="手电开关" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 9 3-4 8 8-4 3-7-7Zm0 0-5 5 7 7 5-5M17 2l-1 3m6 2-3 1m3 5h-3"/></svg><span class="control-label">手电</span></button><button type="button" id="tThrow" aria-label="扔出手里的空罐"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 8 7-2 4 13-7 2L7 8Zm1 3 7-2M3 6l2-2m0 10H2M14 2l2 1"/></svg><span class="control-label">扔罐</span></button>
     </div>
   </div>
   <script>
