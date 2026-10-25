@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#131d18">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23070c0c'/%3E%3Crect x='5' y='5' width='22' height='22' fill='none' stroke='%23c49a52' stroke-width='1.6'/%3E%3Cpath d='M5 27 L27 5' stroke='%2383c9bd' stroke-width='1.6'/%3E%3C/svg%3E">
+  <title>夜班协议 · 1996</title>
+  <link rel="stylesheet" href="./style.css">
+  <!-- 首屏优化：把 5 个模块从「game.mjs → three.min.js → …」的串行瀑布拉平成并行预取 -->
+  <link rel="modulepreload" href="../i18n.mjs">
+  <link rel="modulepreload" href="./levels.mjs">
+  <link rel="modulepreload" href="./vendor/three.min.js">
+  <link rel="modulepreload" href="./models.mjs">
+  <link rel="modulepreload" href="./game.mjs">
+</head>
+<body>
+  <canvas id="game" aria-label="夜班协议第一人称三维场景"></canvas>
+  <div id="grain" aria-hidden="true"></div><div id="vignette" aria-hidden="true"></div><div id="scareFlash" aria-hidden="true"></div>
+  <div id="loading" role="status" aria-live="polite" aria-busy="true"><span class="seal">临江 · 1996</span><p>正在接通夜间内线<span class="blink">_</span></p><div class="load-track" aria-hidden="true"><i></i></div></div>
+  <main id="menu" class="screen hidden" aria-label="主菜单">
+    <div class="menu-top"><span>临江市公共设施管理处</span><span>内部档案 / 编号 017</span></div>
+    <section class="title-block"><p class="eyebrow">A CALL FROM THE OTHER SIDE OF TONIGHT</p><div class="edition">一九九六年 · 夜间记录</div><h1>夜班<span>协议</span><em>NIGHT SHIFT PROTOCOL</em></h1><p class="menu-copy">有人在电话里教你逃出去。<br>他知道你的一切，除了你能否活到天亮。</p>
+      <div class="menu-actions"><button type="button" id="newGame" class="primary">接起电话，进入夜班 <span>↗</span></button><button type="button" id="continueGame" class="hidden">继续上次的夜班</button><div class="secondary-actions"><button type="button" id="chapterButton">章节档案</button><button type="button" id="galleryButton">人员档案</button><button type="button" id="achievementsButton">成就</button><button type="button" id="settingsButton">声音与画面</button></div></div>
+      <p class="small muted">三章完整试玩 · 第一人称逃生 · 追逐与突脸<br><span class="kbd-only">WASD 移动 / 鼠标视角 / E 互动 / Esc 暂停</span><span class="touch-only">左侧摇杆移动 / 右侧拖动转向 / 点按按钮互动<br>顶部左侧下滑开手记 · 上滑引路 · 双击暂停</span></p>
+    </section>
+    <aside class="menu-stamp"><span>23:40</span><div class="stamp-line"></div><p>夜间值班人员<br>请勿相互确认身份</p><b>值班员：████</b></aside>
+    <footer class="menu-bottom"><span>图书馆 / 地下停车场 / 停用住院部</span><span>请在天亮前完成交接</span></footer>
+  </main>
+  <section id="hud" class="hidden" aria-label="游戏状态">
+    <header><div><span id="chapterTag" class="eyebrow"></span><p id="place"></p></div><div class="hud-clock"><span id="clock"></span><small>REC <i></i></small></div></header>
+    <div id="ruleAlert" class="hidden" aria-hidden="true"><b>规则更新</b><span id="ruleAlertText"></span></div>
+    <div id="objective"><span class="obj-alert" aria-hidden="true">规则更新</span><span class="tiny-label">当前事项</span><p id="objectiveText" aria-live="polite" aria-atomic="true"></p></div>
+    <div id="crosshair" aria-hidden="true"></div><div id="interact" class="hidden"><kbd>E</kbd><span></span></div>
+    <div id="hold" class="hidden"><span>手轮进度</span><div><i></i></div><small>松开 E 可保留进度；附近的东西会听见。</small></div>
+    <div id="subtitle" class="hidden" role="status"><span>内线 / 值班员</span><p></p></div>
+    <div id="toast" class="hidden" role="status"></div>
+    <div id="hideOverlay" class="hidden"><div class="slats"></div><p>你在柜子里。<span id="hideState">保持安静，听脚步。</span><br><kbd>E</kbd> 离开柜子</p></div>
+    <div id="danger" class="hidden"></div>
+    <footer><div class="status"><span id="posture">站立</span><span id="flashState">手电 ON</span><span id="cans" class="none">空罐 ×0</span><div class="stamina"><i id="stamina"></i></div></div><div class="shortcuts" role="group" aria-label="键盘快捷键"><span class="sc-item"><kbd>Shift</kbd>奔跑</span><span class="sc-item"><kbd>C</kbd>蹲下</span><span class="sc-item"><kbd>F</kbd>手电</span><span class="sc-item"><kbd>Q</kbd>扔罐</span><span class="sc-item"><kbd>T</kbd>手记</span><span class="sc-item"><kbd>H</kbd>引路</span><span class="sc-item"><kbd>Esc</kbd>暂停</span></div></footer>
+    <div id="hint" class="hidden"></div><div id="lookFallback" class="hidden">鼠标拖动 / 方向键转动视角，点击画面可尝试锁定鼠标</div>
+    <div id="srLive" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div id="srAlert" class="sr-only" role="alert" aria-atomic="true"></div>
+  </section>
+  <div id="panel" class="screen hidden" data-phase="none"><section class="panel-card" role="dialog" aria-modal="true" aria-labelledby="panelTitle"><span id="panelKicker" class="eyebrow"></span><h2 id="panelTitle"></h2><div id="panelContent"></div><div id="panelActions"></div></section></div>
+  <section id="gallery" class="screen hidden" aria-label="人员档案"><div class="gallery-copy"><p class="eyebrow">临江市 / 设备检修班</p><h2>周临</h2><p>24 岁 · 设备检修工</p><p class="muted">靛蓝帆布工装、缝补的袖口、<br>褪色工作证、旧皮鞋。<br>左眉的旧伤，比你记得的更深。</p><p class="small">低多边形人物 · 自动旋转展示<br>第一人称可见工装、双手与身体</p><button type="button" id="galleryBack">返回夜班</button></div><canvas id="portrait" aria-label="主角周临的三维全身模型"></canvas></section>
+  <section id="achievements" class="screen hidden" aria-labelledby="achvTitle">
+    <div class="achv-shell">
+      <header class="achv-top">
+        <p class="eyebrow">统一成就记录</p>
+        <h2 id="achvTitle">成就</h2>
+        <p id="achvSummary" class="small muted" role="status" aria-live="polite"></p>
+      </header>
+      <div id="achvBody" class="achv-scroll"></div>
+      <footer class="achv-actions">
+        <span id="achvStatus" class="achv-status" role="status" aria-live="polite"></span>
+        <div class="achv-buttons">
+          <button type="button" id="achvReset" class="danger">重置成就进度</button>
+          <button type="button" id="achvExport">导出成就存档</button>
+          <button type="button" id="achvBack" class="primary">返回夜班</button>
+        </div>
+      </footer>
+    </div>
+  </section>
+  <div id="fatal" class="hidden"><h2>无法进入夜班</h2><p></p><button type="button" onclick="location.reload()">重新加载</button></div>
+  <div id="touch">
+    <div id="gestureZone" aria-hidden="true"></div>
+    <div id="lookPad" aria-hidden="true"></div>
+    <div id="stick" aria-hidden="true"><i></i></div>
+    <div id="touchButtons" role="group" aria-label="触控操作">
+      <button type="button" id="tPause" aria-label="暂停" aria-keyshortcuts="Escape">暂停</button>
+      <button type="button" id="tUse" aria-label="互动，按住可转动手轮" aria-keyshortcuts="E">互动</button>
+      <button type="button" id="tRun" aria-label="奔跑" aria-pressed="false" aria-keyshortcuts="Shift">奔跑</button>
+      <button type="button" id="tCrouch" aria-label="蹲下" aria-pressed="false" aria-keyshortcuts="C">蹲下</button>
+      <button type="button" id="tFlash" aria-label="手电开关" aria-pressed="true" aria-keyshortcuts="F">手电</button>
+      <button type="button" id="tThrow" aria-label="扔出手里的空罐" aria-keyshortcuts="Q">扔 罐</button>
+      <button type="button" id="tNote" aria-label="手记" aria-keyshortcuts="T">手记</button>
+      <button type="button" id="tHint" aria-label="引路" aria-keyshortcuts="H">引路</button>
+    </div>
+  </div>
+  <script>
+  /* 离线缓存：注册根目录的 sw.js（作用域 /），与入口页共用同一份缓存；失败静默忽略。 */
+  (function () {
+    if (!('serviceWorker' in navigator) || location.protocol.indexOf('http') !== 0) return;
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('../sw.js').catch(function () {});
+    });
+  })();
+  </script>
+  <p class="nomodule-notice" id="nomoduleNotice" hidden role="alert"><b>浏览器版本过旧</b><br>《夜班协议》的三维夜班需要支持 ES 模块的现代浏览器（Edge 88+ / Chrome 88+ / Safari 14+ / Firefox 89+）。请更新浏览器后重试。<br><span lang="en">This game needs a modern browser with ES module support (Edge 88+ / Chrome 88+ / Safari 14+ / Firefox 89+). Please update and retry.</span></p>
+  <script nomodule>(function(){var n=document.getElementById('nomoduleNotice');if(n)n.hidden=false;var l=document.getElementById('loading');if(l)l.classList.add('hidden');})();</script>
+  <script type="module" src="./game.mjs"></script>
+</body>
+</html>

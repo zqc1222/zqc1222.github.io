@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#131d18">
+<meta name="description" content="夜档统一成就档案：汇总《夜班协议 1996》中解锁的成就，进度仅保存在本机浏览器，可随时重置或导出。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23070c0c'/%3E%3Crect x='5' y='5' width='22' height='22' fill='none' stroke='%23c49a52' stroke-width='1.6'/%3E%3Cpath d='M5 27 L27 5' stroke='%2383c9bd' stroke-width='1.6'/%3E%3C/svg%3E">
+<title>成就档案 · 夜档</title>
+<link rel="modulepreload" href="./i18n.mjs">
+<link rel="modulepreload" href="./storage.mjs">
+<link rel="modulepreload" href="./achievements.mjs">
+<style>
+:root{--paper:#d5d1b9;--muted:#a8ad99;--line:rgba(205,211,182,.22);font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:var(--paper);background:#111a16;font-synthesis:none}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 62% 8%,#26332a,#0c1410 74%);padding:0 0 56px}
+a{color:var(--paper)}
+.hidden{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+button{font:inherit;cursor:pointer;color:inherit;background:#1b2a22;border:1px solid var(--line);padding:13px 20px;letter-spacing:.04em;transition:background .18s,transform .18s}
+button:hover,button:focus-visible{background:#314235;border-color:#a6b397;outline:none}
+button:active{transform:translateY(1px)}
+button.primary{background:var(--paper);color:#17221b;border-color:var(--paper)}
+button.primary:hover{background:#e9e6d0}
+button:focus-visible{outline:2px solid var(--paper);outline-offset:2px}
+.achv-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1000px;margin:0 auto;padding:22px 5vw 0;font-size:12px;letter-spacing:.14em;color:#b3b7a1}
+.achv-bar a{text-decoration:none;border:1px solid var(--line);padding:9px 16px;background:rgba(20,30,24,.6)}
+.achv-bar a:hover{background:#314235;border-color:#a6b397}
+.lang-toggle::before{content:"";display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:#e0bd72;opacity:.8;vertical-align:middle}
+.achv-wrap{max-width:1000px;margin:0 auto;padding:30px 5vw 0}
+.eyebrow{font-family:Consolas,"Microsoft YaHei",monospace;font-size:10px;letter-spacing:.18em;color:#c3b57d;margin:0}
+h1{font-family:SimSun,"Songti SC",serif;font-size:52px;letter-spacing:.14em;font-weight:500;margin:10px 0 14px}
+.lede{margin:0 0 10px;font-size:13.5px;line-height:1.85;color:var(--muted);max-width:60em}
+.summary{margin:14px 0 26px;font-size:14px;color:#e9eed8;letter-spacing:.05em}
+.achv-list-wrap{display:grid;gap:16px}
+.achv-group{border:1px solid var(--line);background:rgba(14,22,17,.72);padding:16px 18px 18px;border-radius:2px}
+.achv-group-title{margin:0 0 12px;font:11px Consolas,"Microsoft YaHei",monospace;font-weight:400;letter-spacing:.24em;color:#c6d6ad;display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.achv-group-count{color:#93a184;letter-spacing:.08em}
+.achv-list{list-style:none;margin:0;padding:0;display:grid;gap:9px;grid-template-columns:1fr}
+@media(min-width:760px){.achv-list{grid-template-columns:1fr 1fr}}
+.achv-item{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid rgba(205,211,182,.14);background:rgba(9,15,12,.5)}
+.achv-icon{font-size:22px;line-height:1.1;filter:grayscale(1) brightness(.7);opacity:.6}
+.achv-name{margin:0 0 3px;font-size:14.5px;color:#8f9b81;letter-spacing:.03em}
+.achv-desc{margin:0;font-size:12px;line-height:1.65;color:#7f8c74}
+.achv-prog{margin:6px 0 0;font:11px Consolas,monospace;letter-spacing:.06em;color:#8d9a80}
+.achv-state{display:inline-block;margin-top:6px;font:10px Consolas,monospace;letter-spacing:.18em;padding:2px 8px;border:1px solid rgba(205,211,182,.25);color:#8e9a80}
+.achv-item.is-unlocked{border-color:rgba(201,164,92,.5);background:linear-gradient(90deg,rgba(40,52,32,.7),rgba(12,20,14,.55));box-shadow:inset 0 0 0 1px rgba(201,164,92,.14)}
+.achv-item.is-unlocked .achv-icon{filter:none;opacity:1}
+.achv-item.is-unlocked .achv-name{color:#f0ead2}
+.achv-item.is-unlocked .achv-desc{color:#c2c7ae}
+.achv-item.is-unlocked .achv-state{border-color:rgba(201,164,92,.6);color:#e6cd8f}
+.achv-foot{margin-top:26px;border-top:1px solid var(--line);padding-top:20px}
+.foot-actions{display:flex;flex-wrap:wrap;gap:12px}
+.foot-actions button,.foot-actions .btn-back{min-height:44px;display:inline-flex;align-items:center}
+.btn-back{text-decoration:none;border:1px solid var(--line);background:rgba(20,30,24,.6);padding:13px 20px;letter-spacing:.04em}
+.btn-back:hover{background:#314235;border-color:#a6b397}
+.status{min-height:1.3em;margin:16px 0 0;font-size:12.5px;color:#bcd0a2}
+.note{margin:8px 0 0;font-size:12px;line-height:1.8;color:var(--muted)}
+.confirm{margin-top:24px;border:1px solid rgba(169,75,60,.55);background:rgba(26,20,17,.86);padding:20px 22px;max-width:640px}
+.confirm h2{margin:0 0 10px;font-family:SimSun,"Songti SC",serif;font-size:24px;letter-spacing:.1em;font-weight:500}
+.confirm p{margin:0 0 16px;font-size:13px;line-height:1.8;color:#cdc3ae}
+.confirm-actions{display:flex;flex-wrap:wrap;gap:10px}
+.confirm-actions #confirmYes{border-color:#9c5543;color:#e2a28b}
+html[data-contrast="high"]{--line:rgba(232,238,212,.62)}
+html[data-contrast="high"] .achv-group,html[data-contrast="high"] .achv-item,html[data-contrast="high"] .confirm{background:rgba(4,8,6,.95)}
+html[data-contrast="high"] button,html[data-contrast="high"] .btn-back,html[data-contrast="high"] .achv-bar a{background:#050807;border-color:rgba(232,238,212,.66)}
+html[data-contrast="high"] button.primary{background:#f2efdc;color:#0b120d;border-color:#f2efdc}
+html[data-contrast="high"] .achv-item.is-unlocked .achv-name,html[data-contrast="high"] .achv-item.is-unlocked .achv-desc{color:#f6f9e8}
+@media(prefers-contrast:more){.achv-group,.achv-item,.confirm{background:rgba(4,8,6,.95)}}
+@media(max-width:640px){h1{font-size:36px}.foot-actions button,.foot-actions .btn-back{flex:1 1 auto;justify-content:center}}
+html[data-lang="en-US"] body{font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;letter-spacing:.012em}
+html[data-lang="en-US"] h1{font-family:"Segoe UI",system-ui,sans-serif;letter-spacing:.03em;font-size:44px}
+html[data-lang="en-US"] .confirm h2{font-family:"Segoe UI",system-ui,sans-serif;letter-spacing:.02em}
+html[data-lang="en-US"] .eyebrow,html[data-lang="en-US"] .achv-group-title,html[data-lang="en-US"] .achv-prog,html[data-lang="en-US"] .achv-state{font-family:"SFMono-Regular",Consolas,monospace}
+html[data-lang="en-US"] .achv-desc,html[data-lang="en-US"] .lede{line-height:1.72}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+</style>
+</head>
+<body>
+<header class="achv-bar">
+  <a href="./index.html">返回档案目录</a>
+  <button type="button" id="langToggle" class="lang-toggle"></button>
+</header>
+<main class="achv-wrap">
+  <p class="eyebrow">临江市公共设施管理处 · 统一记录</p>
+  <h1>成就档案</h1>
+  <p class="lede">本页汇总全部作品里解锁的成就。进度保存在本机浏览器，可随时重置或导出。</p>
+  <p id="achvSummary" class="summary" role="status" aria-live="polite"></p>
+  <div id="achvBody" class="achv-list-wrap"></div>
+
+  <section id="confirmBox" class="confirm hidden" role="alertdialog" aria-labelledby="confirmTitle" aria-describedby="confirmDesc">
+    <h2 id="confirmTitle">确认重置成就？</h2>
+    <p id="confirmDesc">这会清空已解锁的成就与全部进度统计，且无法撤销。该操作只影响成就记录，不影响游戏存档。</p>
+    <div class="confirm-actions">
+      <button type="button" id="confirmYes">确认重置</button>
+      <button type="button" id="confirmNo" class="primary">取消</button>
+    </div>
+  </section>
+
+  <footer class="achv-foot">
+    <div class="foot-actions">
+      <button type="button" id="achvReset">重置成就进度</button>
+      <button type="button" id="achvExport">导出成就存档</button>
+      <a class="btn-back" href="./index.html">返回档案目录</a>
+    </div>
+    <p id="achvStatus" class="status" role="status" aria-live="polite"></p>
+    <p id="achvNote" class="note"></p>
+  </footer>
+</main>
+<script>
+(function () {
+  if (!('serviceWorker' in navigator) || location.protocol.indexOf('http') !== 0) return;
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+})();
+</script>
+<script type="module">
+import { t, initI18n, applyI18n, setLang, getLang, switchLabel } from './i18n.mjs';
+import { storageAvailable } from './storage.mjs';
+import { ACHV_CATEGORIES, list, progress, exportJSON, resetAchievements } from './achievements.mjs';
+
+const $ = (id) => document.getElementById(id);
+
+await initI18n();
+applyI18n(document);
+
+/* 语言切换：与入口页/游戏页共用同一偏好键，切换后整页重载，保证与其它页面一致 */
+(function mountLang() {
+  const b = $('langToggle');
+  if (!b) return;
+  const sync = () => {
+    const name = switchLabel();
+    b.textContent = name;
+    b.setAttribute('aria-label', t('界面语言') + ': ' + name);
+    b.setAttribute('lang', getLang() === 'zh-CN' ? 'en-US' : 'zh-CN');
+  };
+  b.addEventListener('click', () => { setLang(getLang() === 'zh-CN' ? 'en-US' : 'zh-CN'); window.location.reload(); });
+  sync();
+})();
+
+function render() {
+  const host = $('achvBody');
+  if (!host) return;
+  host.replaceChildren();
+  const data = list();
+  const prog = progress();
+  const sum = $('achvSummary');
+  if (sum) sum.textContent = t('已解锁 {n} / {total} 项成就', { n: prog.unlocked, total: prog.total });
+  for (const cat of ACHV_CATEGORIES) {
+    const items = data.filter((a) => a.category === cat);
+    if (!items.length) continue;
+    const group = document.createElement('section');
+    group.className = 'achv-group';
+    const h = document.createElement('h2');
+    h.className = 'achv-group-title';
+    h.textContent = t(cat);
+    const count = document.createElement('span');
+    count.className = 'achv-group-count';
+    count.textContent = items.filter((a) => a.unlocked).length + ' / ' + items.length;
+    h.append(count);
+    group.append(h);
+    const ul = document.createElement('ul');
+    ul.className = 'achv-list';
+    for (const a of items) {
+      const li = document.createElement('li');
+      li.className = 'achv-item' + (a.unlocked ? ' is-unlocked' : '');
+      const icon = document.createElement('span');
+      icon.className = 'achv-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = a.icon;
+      const box = document.createElement('div');
+      const name = document.createElement('p');
+      name.className = 'achv-name';
+      name.textContent = t(a.name);
+      const desc = document.createElement('p');
+      desc.className = 'achv-desc';
+      desc.textContent = t(a.desc);
+      box.append(name, desc);
+      if (a.progress) {
+        const pr = document.createElement('p');
+        pr.className = 'achv-prog';
+        pr.textContent = t('进度 {current} / {goal}', { current: a.progress.current, goal: a.progress.goal });
+        box.append(pr);
+      }
+      const state = document.createElement('span');
+      state.className = 'achv-state';
+      state.textContent = a.unlocked ? t('已解锁') : t('未解锁');
+      box.append(state);
+      li.append(icon, box);
+      ul.append(li);
+    }
+    group.append(ul);
+    host.append(group);
+  }
+  const note = $('achvNote');
+  if (note) note.textContent = storageAvailable() ? t('成就进度仅保存在本机浏览器，不上传。') : t('当前浏览器不允许持久保存，成就进度只保留在本次会话内。');
+}
+
+function status(text) { const el = $('achvStatus'); if (el) el.textContent = text; }
+
+const confirmBox = $('confirmBox');
+const btnReset = $('achvReset');
+if (btnReset) btnReset.addEventListener('click', () => { if (confirmBox) { confirmBox.classList.remove('hidden'); const y = $('confirmYes'); if (y) y.focus(); } });
+const btnNo = $('confirmNo');
+if (btnNo) btnNo.addEventListener('click', () => { if (confirmBox) confirmBox.classList.add('hidden'); if (btnReset) btnReset.focus(); });
+const btnYes = $('confirmYes');
+if (btnYes) btnYes.addEventListener('click', () => {
+  resetAchievements();
+  if (confirmBox) confirmBox.classList.add('hidden');
+  status(t('成就进度已重置。'));
+  render();
+  if (btnReset) btnReset.focus();
+});
+const btnExport = $('achvExport');
+if (btnExport) btnExport.addEventListener('click', () => {
+  try {
+    const blob = new Blob([exportJSON()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'nightshift-achievements.json';
+    document.body.append(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 1500);
+    status(t('成就存档已导出。'));
+  } catch (e) {
+    status(t('导出失败，请稍后再试。'));
+  }
+});
+
+render();
+</script>
+</body>
+</html>
