@@ -510,5 +510,8 @@
   "当前浏览器不允许持久保存，成就进度只保留在本次会话内。": "This browser does not allow persistent storage; achievement progress will last only for this session.",
   "成就档案 · 夜档": "Achievement Archive · Night Files",
   "统一成就记录": "Unified achievement record",
-  "成就进度仅保存在本机浏览器，不上传。": "Achievement progress is kept only in this browser and never uploaded."
+  "成就进度仅保存在本机浏览器，不上传。": "Achievement progress is kept only in this browser and never uploaded.",
+  "请横过手机，接通夜班": "Turn your phone to begin the shift",
+  "本游戏采用横屏操作。请关闭手机的方向锁定，再将手机横放。": "Play in landscape. Turn off your phone’s orientation lock, then rotate your phone.",
+  "竖屏时游戏会暂停，横屏后点击继续。": "Portrait mode pauses the game. Rotate back, then tap Continue."
 }

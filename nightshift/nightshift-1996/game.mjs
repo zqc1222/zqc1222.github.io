@@ -139,7 +139,7 @@ export class NightShift {
     if(intro)this.panel(t('第 {n} 章 / {d}',{n:this.level.chapter,d:t(this.level.date)}),t(this.level.title),this.level.intro.map(s=>t(s)).join('\n\n')+'\n\n'+(index===0?t('WASD 移动；鼠标或方向键转动视角。\nE 互动，Shift 奔跑，C 蹲下，T 查看手记。\nQ 扔出手里的空罐。H 可以暂时显示去往当前目标的方向。'):t('本章进度已保存，死亡后会从最近的检查点继续。')),[['进入夜班',()=>this.resume(),'primary']],'intro');else this.resume();
     this.events.push({at:this.elapsed,type:'start',chapter:index});
   }
-  resume(capture=true){this.phase='play';$('panel').classList.add('hidden');$('menu').classList.add('hidden');$('hud').classList.remove('hidden');this.clearInput();this.inputGrace=.2;this.arms.visible=!this.hiding;this.avatar.visible=!this.hiding;if(capture)this.captureMouse();}
+  resume(capture=true){if(this.portraitBlocked)return;this.phase='play';$('panel').classList.add('hidden');$('menu').classList.add('hidden');$('hud').classList.remove('hidden');this.clearInput();this.inputGrace=.2;this.arms.visible=!this.hiding;this.avatar.visible=!this.hiding;if(capture)this.captureMouse();}
   panel(kicker,title,content,actions,phase='dialog'){
     this.phase=phase;$('panel').dataset.phase=phase;this.releaseMouse();$('panel').classList.remove('hidden');$('panelKicker').textContent=t(kicker);$('panelTitle').textContent=t(title);$('panelContent').replaceChildren();if(typeof content==='string')$('panelContent').textContent=t(content);else if(content){$('panelContent').append(content);applyI18n(content);}$('panelActions').replaceChildren();
     for(const [label,fn,kind] of actions){const b=document.createElement('button');b.textContent=t(label);if(kind)b.className=kind;b.onclick=fn;$('panelActions').append(b);}setTimeout(()=>$('panelActions').querySelector('button')?.focus(),0);
@@ -427,12 +427,14 @@ NightShift.prototype.setupTouch=function(){
   const touch=$('touch');if(!touch)return;
   const coarse=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>1;
   if(!(coarse&&Math.min(innerWidth,innerHeight)<=820))return;
+  this.touchResets=[];
   this.touchMode=true;document.body.classList.add('touch-ui');touch.classList.add('active');
   const stick=$('stick'),knob=stick?stick.firstElementChild:null,look=$('lookPad'),held=['KeyW','KeyS','KeyA','KeyD','ShiftLeft'];
   if(stick){
     let id=null,cx=0,cy=0;
     const apply=(dx,dy)=>{const r=Math.max(28,stick.clientWidth*.34),len=Math.hypot(dx,dy)||1,k=Math.min(1,len/r),ux=dx/len*k,uy=dy/len*k;if(knob)knob.style.transform='translate('+(ux*r).toFixed(1)+'px,'+(uy*r).toFixed(1)+'px)';const set=(c,on)=>{on?this.keys.add(c):this.keys.delete(c);};set('KeyW',uy<-.28);set('KeyS',uy>.28);set('KeyA',ux<-.28);set('KeyD',ux>.28);this.touchRun=k>.85;set('ShiftLeft',this.touchRun);};
     const stop=()=>{id=null;if(knob)knob.style.transform='';held.forEach(c=>this.keys.delete(c));};
+    this.touchResets.push(stop);
     stick.addEventListener('pointerdown',e=>{if(id!==null)return;id=e.pointerId;const b=stick.getBoundingClientRect();cx=b.left+b.width/2;cy=b.top+b.height/2;if(stick.setPointerCapture)stick.setPointerCapture(id);e.preventDefault();apply(e.clientX-cx,e.clientY-cy);});
     stick.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;apply(e.clientX-cx,e.clientY-cy);e.preventDefault();});
     stick.addEventListener('pointerup',e=>{if(e.pointerId===id)stop();});
@@ -440,6 +442,7 @@ NightShift.prototype.setupTouch=function(){
   }
   if(look){
     let id=null,lx=0,ly=0;
+    this.touchResets.push(()=>{id=null;});
     look.addEventListener('pointerdown',e=>{if(id!==null)return;id=e.pointerId;lx=e.clientX;ly=e.clientY;if(look.setPointerCapture)look.setPointerCapture(id);});
     look.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;const k=.0032;this.yaw-=(e.clientX-lx)*k;this.pitch=clamp(this.pitch-(e.clientY-ly)*k,-1.35,1.35);lx=e.clientX;ly=e.clientY;});
     look.addEventListener('pointerup',e=>{if(e.pointerId===id)id=null;});
@@ -448,6 +451,7 @@ NightShift.prototype.setupTouch=function(){
   const zone=$('gestureZone');
   if(zone){
     let sy=0,sx=0,st=0,tapAt=0;
+    this.touchResets.push(()=>{st=0;tapAt=0;});
     zone.addEventListener('pointerdown',e=>{e.preventDefault();sy=e.clientY;sx=e.clientX;st=performance.now();try{if(zone.setPointerCapture)zone.setPointerCapture(e.pointerId);}catch(_){}});
     zone.addEventListener('pointermove',e=>{e.preventDefault();});
     zone.addEventListener('pointerup',e=>{
@@ -464,11 +468,41 @@ NightShift.prototype.setupTouch=function(){
   const toggle=(el,code,read)=>{if(!el)return;el.addEventListener('pointerdown',e=>{e.preventDefault();fire('keydown',code);setTimeout(()=>el.setAttribute('aria-pressed',String(!!read())),0);});el.setAttribute('aria-pressed',String(!!read()));};
   toggle($('tCrouch'),'KeyC',()=>this.crouch);toggle($('tFlash'),'KeyF',()=>this.flashOn);
   const pause=$('tPause');if(pause)pause.addEventListener('click',e=>{e.preventDefault();if(this.phase==='play')this.pause();else if(this.phase==='paused')this.resume();});
+  // Rotation is a pause boundary: discard held touches and never auto-resume.
+  const portrait=matchMedia('(orientation:portrait)');
+  const notice=$('rotateNotice');
+  const surfaces=['menu','hud','panel','gallery','achievements','touch','game'];
+  let previousFocus=null;
+  const orient=()=>{
+    const blocked=portrait.matches;
+    if(blocked===this.portraitBlocked)return;
+    this.portraitBlocked=blocked;
+    this.clearInput();this.touchRun=false;
+    this.touchResets.forEach(reset=>reset());
+    for(const id of ['tUse','tRun','tNote','tHint','tThrow'])$(id).setAttribute('aria-pressed','false');
+    if(blocked){
+      previousFocus=document.activeElement;
+      if(this.phase==='play')this.pause();
+    }
+    for(const id of surfaces)$(id).inert=blocked;
+    notice.classList.toggle('hidden',!blocked);
+    document.body.classList.toggle('portrait-blocked',blocked);
+    if(blocked)notice.focus({preventScroll:true});
+    else {
+      const target=this.phase==='paused'?$('panelActions').querySelector('button'):previousFocus;
+      if(target&&target.isConnected)target.focus({preventScroll:true});
+    }
+    this.resize();
+  };
+  if(portrait.addEventListener)portrait.addEventListener('change',orient);
+  else portrait.addListener(orient);
+  addEventListener('resize',orient);
+  orient();
 };
 const _baseCaptureMouse=NightShift.prototype.captureMouse;
 NightShift.prototype.captureMouse=function(){if(this.touchMode)return;return _baseCaptureMouse.call(this);};
 const _baseUpdate=NightShift.prototype.update;
-NightShift.prototype.update=function(dt){this.perf=(this.perf||0)*.9+dt*.1;if(!this.autoLow&&this.settings.quality==='high'&&this.phase==='play'&&this.perf>0.042){this.autoLow=true;this.settings.quality='low';this.resize();this.toast('画面已自动切换为流畅模式。',4);}return _baseUpdate.call(this,dt);};
+NightShift.prototype.update=function(dt){if(this.portraitBlocked)return;this.perf=(this.perf||0)*.9+dt*.1;if(!this.autoLow&&this.settings.quality==='high'&&this.phase==='play'&&this.perf>0.042){this.autoLow=true;this.settings.quality='low';this.resize();this.toast('画面已自动切换为流畅模式。',4);}return _baseUpdate.call(this,dt);};
 for(const _m of ['panel','chapters','powerPuzzle']){const _f=NightShift.prototype[_m];NightShift.prototype[_m]=function(){const _r=_f.apply(this,arguments);document.querySelectorAll('.panel-card button:not([type])').forEach(_b=>{_b.type='button';});return _r;};}
 
 /* ==== T6 存档 / 检查点 / 章节选择：localStorage 增量保存；不改动原玩法与剧情文本 ==== */

@@ -259,3 +259,42 @@ html[data-lang="en-US"] .achv-state{letter-spacing:.1em}
 html[data-contrast="high"] .achv-group,html[data-contrast="high"] .achv-item{background:rgba(4,8,6,.95)}
 html[data-contrast="high"] .achv-group-title{color:#eef2dc}
 html[data-contrast="high"] .achv-item.is-unlocked .achv-name,html[data-contrast="high"] .achv-item.is-unlocked .achv-desc{color:#f6f9e8}
+
+/* Mobile landscape layout, including browser bars and notched displays. */
+#rotateNotice{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 30%,#29392c,#0c1711 75%);padding:32px max(24px,env(safe-area-inset-right)) 32px max(24px,env(safe-area-inset-left));text-align:center;overflow:auto;outline:none;touch-action:pan-y}
+.rotate-card{max-width:360px;margin:auto}
+.rotate-card h2{font-size:26px;line-height:1.6;letter-spacing:.08em}
+.rotate-card p{line-height:1.9}
+.rotate-phone{width:112px;height:62px;margin:38px auto 28px;border:2px solid #b8c6a7;border-radius:12px;box-shadow:inset 7px 0 #b8c6a7;font:38px/58px sans-serif;color:#c5b184;transform:rotate(-12deg)}
+body.portrait-blocked #touch{display:none}
+#hud.hidden ~ #touch,#panel:not(.hidden) ~ #touch{display:none}
+@media (orientation:landscape) and (max-height:560px){
+  body.touch-ui #menu{padding:12px max(22px,env(safe-area-inset-right)) 10px max(22px,env(safe-area-inset-left));overflow-y:auto;gap:10px}
+  body.touch-ui .menu-top{padding-bottom:8px;flex-shrink:0}
+  body.touch-ui .title-block{width:100%;margin:auto 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);grid-template-rows:auto 1fr auto;column-gap:24px;align-items:center}
+  body.touch-ui .title-block>.eyebrow,body.touch-ui .menu-stamp{display:none}
+  body.touch-ui .edition{grid-column:1;grid-row:1;margin:0;font-size:11px}
+  body.touch-ui h1{grid-column:1;grid-row:2;font-size:48px;margin:10px 0;line-height:1}
+  body.touch-ui h1 em{margin-top:10px;font-size:8px}
+  body.touch-ui .menu-copy{grid-column:1;grid-row:3;margin:0;font-size:11px;line-height:1.6}
+  body.touch-ui .menu-actions{grid-column:2;grid-row:1 / 3;width:100%;gap:7px}
+  body.touch-ui .menu-actions button{min-height:44px;padding:9px 10px;font-size:12px}
+  body.touch-ui .secondary-actions{flex-wrap:wrap}
+  body.touch-ui .secondary-actions button{flex:1 0 50%;font-size:11px;padding:7px 4px}
+  body.touch-ui .title-block>.small{grid-column:2;grid-row:3;margin:5px 0 0;font-size:10px;line-height:1.5}
+  body.touch-ui .menu-bottom{padding-top:8px;flex-shrink:0;font-size:9px;letter-spacing:.04em}
+  body.touch-ui #stick{left:max(14px,env(safe-area-inset-left));bottom:max(22px,env(safe-area-inset-bottom))}
+  body.touch-ui #touchButtons{right:max(12px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));padding-bottom:0}
+  body.touch-ui #hud header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  body.touch-ui #objective{left:max(14px,env(safe-area-inset-left));max-width:40vw}
+  body.touch-ui #hud footer{left:max(14px,env(safe-area-inset-left));bottom:4px}
+  body.touch-ui #subtitle{bottom:38%;width:70vw;padding:6px 12px}
+  body.touch-ui #subtitle p{font-size:12px;line-height:1.5}
+  body.touch-ui #panel{padding:12px max(18px,env(safe-area-inset-right)) 12px max(18px,env(safe-area-inset-left))}
+  body.touch-ui .panel-card{max-height:calc(100dvh - 24px);padding:18px 24px;overscroll-behavior:contain}
+  body.touch-ui #panelActions{position:sticky;bottom:-18px;background:#1b2a21;padding:10px 0;margin-top:14px}
+  body.touch-ui #panelActions button{min-height:44px}
+  body.touch-ui #gallery{overflow:auto;align-items:flex-start}
+  body.touch-ui .gallery-copy h2{font-size:32px;margin:8px 0}
+  body.touch-ui .gallery-copy p{font-size:11px;line-height:1.6;margin:6px 0}
+}
