@@ -5,6 +5,8 @@ const API='https://nightshift-1996-rankings.zhangqunce90.chatgpt.site/api/race';
 const STAGES=['library_key','library_exit','garage_power','crank_start','garage_gate','garage_exit','hospital_record','dawn'];
 const $=id=>document.getElementById(id);
 const deviceName=d=>t(d==='mobile'?'手机榜':'电脑榜');
+// A touch-screen Windows laptop still belongs to the computer division.
+const divisionOf=()=>navigator.userAgentData?.mobile||/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)?'mobile':'desktop';
 async function api(action,data,token){
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
  try{
@@ -52,7 +54,7 @@ export function installRace(Game){
   const box=document.createElement('div');box.className='race-entry';
   const rules=document.createElement('p');rules.textContent=t('三章逃生 · 一次生命 · 150 秒手轮。暂停、阅读和突脸均计时。死亡、重开、读档或刷新将结束本次竞速，普通存档不受影响。');
   const label=document.createElement('label');label.textContent=t('上榜昵称');const input=document.createElement('input');input.id='raceNickname';input.maxLength=16;input.autocomplete='nickname';input.value=getItem('nightshift-race-nickname')||'';label.append(input);
-  const division=this.touchMode?'mobile':'desktop';const group=document.createElement('p');group.textContent=t('本机分组：')+deviceName(division);
+  const division=divisionOf();const group=document.createElement('p');group.textContent=t('本机分组：')+deviceName(division);
   const status=document.createElement('p');status.id='raceEntryStatus';status.setAttribute('role','status');
   box.append(rules,label,group,status);
   this.panel('RACE / 1996',t('竞速挑战'),box,[[t('开始计时'),async()=>{
@@ -74,7 +76,7 @@ export function installRace(Game){
    finally{this.raceStarting=false;buttons.forEach(b=>b.disabled=false);}
   },'primary'],[t('返回标题'),()=>this.showMenu()]],'menu');
  };
- Game.prototype.openLeaderboard=function(division=this.touchMode?'mobile':'desktop'){
+ Game.prototype.openLeaderboard=function(division=divisionOf()){
   const box=document.createElement('div');box.className='leaderboard';
   const rules=document.createElement('p');rules.className='small muted';rules.textContent=t('150 秒手轮 · 三章天亮结局 · 总用时含暂停与阅读。休闲竞速，基础时间与流程校验。');
   const tabs=document.createElement('div');tabs.className='rank-tabs';
