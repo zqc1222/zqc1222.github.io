@@ -338,3 +338,24 @@ body.touch-ui #stick i{width:42px;height:42px;margin:-21px 0 0 -21px;background:
   body.touch-ui #place{font-size:12px}
   body.touch-ui .hud-clock>span{font-size:18px}
 }
+
+.race-actions{display:flex;gap:8px}.race-actions button{flex:1;font-size:12px;padding:10px;border-color:#c5b58466}
+#raceClock{position:fixed;bottom:3px;left:50%;transform:translateX(-50%);z-index:12;max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:11px Consolas,monospace;color:#e0c78e;background:#0d1812d9;padding:3px 8px;border-radius:3px;pointer-events:none}
+body.portrait-blocked #raceClock{visibility:hidden}
+.race-entry label{display:block;color:#e0c78e}.race-entry input{display:block;width:100%;margin-top:8px;border:1px solid #a5ad8a;background:#101d16;color:#e3dfc7;padding:12px;font:inherit;outline-offset:3px}
+.rank-tabs{display:flex;gap:8px;margin:14px 0}.rank-tabs button{flex:1;padding:10px}.rank-tabs button[aria-pressed="true"]{background:#c7c6a7;color:#142019}
+.leaderboard table{width:100%;border-collapse:collapse;font-size:13px}.leaderboard th,.leaderboard td{padding:10px 6px;text-align:left;border-bottom:1px solid #cad0b52b}.leaderboard td:last-child{font-family:Consolas,monospace;text-align:right}.leaderboard th:last-child{text-align:right}
+#raceResult{color:#e0c78e;border-top:1px solid #c9bf8955;padding-top:12px}
+@media (orientation:landscape) and (max-height:560px){
+ body.touch-ui .title-block>.small{display:none}
+ body.touch-ui .menu-actions{grid-row:1 / 4}
+ body.touch-ui .menu-actions button{min-height:38px}
+ body.touch-ui .race-actions{gap:6px}
+ body.touch-ui .secondary-actions button{min-height:32px}
+ body.touch-ui #raceClock{font-size:10px;max-width:40vw}
+ body.touch-ui #panel:has(.leaderboard) h2{font-size:23px;margin:6px 0 10px;line-height:1.3}
+ body.touch-ui .leaderboard .small{font-size:10px;margin:5px 0!important}
+ body.touch-ui .rank-tabs{margin:8px 0;gap:8px}
+ body.touch-ui .rank-tabs button{padding:8px;min-height:40px;font-size:12px}
+ body.touch-ui .leaderboard th,body.touch-ui .leaderboard td{padding:5px 6px;font-size:12px}
+}

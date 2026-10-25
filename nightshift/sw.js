@@ -11,7 +11,7 @@
  */
 const ROOT = new URL('./', self.location).pathname;
 const CACHE_PREFIX = 'nightshift-1996-scope-' + encodeURIComponent(ROOT) + '-';
-const VERSION = CACHE_PREFIX + 'v6';
+const VERSION = CACHE_PREFIX + 'v7';
 
 const PRECACHE = [
   './',
@@ -26,6 +26,8 @@ const PRECACHE = [
   './nightshift-1996/index.html',
   './nightshift-1996/style.css',
   './nightshift-1996/game.mjs',
+  './nightshift-1996/challenge.mjs',
+  './nightshift-1996/race.mjs',
   './nightshift-1996/levels.mjs',
   './nightshift-1996/models.mjs',
   './nightshift-1996/vendor/three.min.js',

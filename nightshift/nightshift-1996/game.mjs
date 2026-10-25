@@ -1,3 +1,5 @@
+import {CRANK_SECONDS,CrankHazard} from './challenge.mjs';
+import {installRace} from './race.mjs';
 import * as THREE from './vendor/three.min.js';
 import {LEVELS,TILE,SAVE_KEY,worldCell,pathfind,isFloor,currentObjective} from './levels.mjs';
 import {buildWorld,character,firstPersonArms,cylinder,disposeModel,canProp} from './models.mjs';
@@ -50,7 +52,7 @@ class Sound {
 
 export class NightShift {
   constructor(){
-    this.settings=loadSettings();this.saved=loadSave();this.notes=[...this.saved.notes];this.phase='menu';this.index=0;this.keys=new Set();this.elapsed=0;this.frameTime=0;this.yaw=0;this.pitch=0;this.player=v3(0,0,0);this.stamina=100;this.crouch=false;this.flashOn=true;this.hiding=null;this.dragging=false;this.target=null;this.hintUntil=0;this.toastUntil=0;this.subtitleUntil=0;this.inputGrace=0;this.sound=new Sound();this.sound.setVolume(this.settings.volume);this.raycaster=new THREE.Raycaster();this.objectMeshes=new Map();this.flags={};this.events=[];this.pauseReturn='play';this.touchMode=false;this.touchRun=false;this.autoLow=false;this.cans=0;this.thrown=[];this.doorAnim=[];const _gl=webglSupport();if(_gl!=='webgl2'){const _e=new Error(_gl==='webgl1'?'浏览器仅支持 WebGL 1，而本作需要 WebGL 2 才能渲染三维场景。':'浏览器未启用 WebGL，无法渲染三维夜班。');_e.code=_gl==='webgl1'?'webgl1-only':'no-webgl';throw _e;}
+    this.settings=loadSettings();this.saved=loadSave();this.notes=[...this.saved.notes];this.phase='menu';this.crankHazard=new CrankHazard();this.index=0;this.keys=new Set();this.elapsed=0;this.frameTime=0;this.yaw=0;this.pitch=0;this.player=v3(0,0,0);this.stamina=100;this.crouch=false;this.flashOn=true;this.hiding=null;this.dragging=false;this.target=null;this.hintUntil=0;this.toastUntil=0;this.subtitleUntil=0;this.inputGrace=0;this.sound=new Sound();this.sound.setVolume(this.settings.volume);this.raycaster=new THREE.Raycaster();this.objectMeshes=new Map();this.flags={};this.events=[];this.pauseReturn='play';this.touchMode=false;this.touchRun=false;this.autoLow=false;this.cans=0;this.thrown=[];this.doorAnim=[];const _gl=webglSupport();if(_gl!=='webgl2'){const _e=new Error(_gl==='webgl1'?'浏览器仅支持 WebGL 1，而本作需要 WebGL 2 才能渲染三维场景。':'浏览器未启用 WebGL，无法渲染三维夜班。');_e.code=_gl==='webgl1'?'webgl1-only':'no-webgl';throw _e;}
     this.renderer=new THREE.WebGLRenderer({canvas:$('game'),antialias:true,powerPreference:'high-performance'});this.renderer.setClearColor(0x233125);this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.12;
     /* 阴影：只由手电投射一次深度，用来把敌人和书架的轮廓从黑暗里“刻”出来。 */
     this.shadowOn=this.settings.quality!=='low';this.renderer.shadowMap.enabled=this.shadowOn;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -274,7 +276,7 @@ updateCamera(dt){const bob=this.settings.shake&&this.phase==='play'&&this.moving
   updateHUD(){const [target,text]=currentObjective(this.index,this.flags);const ot=$('objectiveText');if(ot.textContent!==text){ot.textContent=text;const box=$('objective');if(box){box.classList.remove('is-new');void box.offsetWidth;box.classList.add('is-new');clearTimeout(this.objTimer);this.objTimer=setTimeout(()=>box.classList.remove('is-new'),2600);}}$('stamina').style.width=this.stamina+'%';$('posture').textContent=t(this.hiding?'躲藏':this.crouch?'蹲伏':'站立');$('flashState').textContent=t('手电 {state}',{state:this.flashOn&&!this.hiding?'ON':'OFF'});const canEl=$('cans');if(canEl){canEl.textContent=t('空罐 ×{n}',{n:this.cans||0});canEl.classList.toggle('none',!this.cans);}
     this.syncTouchControls?.();
     this.target=this.hiding?null:this.nearestObject();$('interact').classList.toggle('hidden',!this.target||this.hiding||this.phase!=='play');if(this.target){let title=this.target.title;if(this.target.id==='curtain')title=this.flags.curtainClosed?'拉开右侧隔帘':'拉上右侧隔帘';if(this.target.id==='crank')title=this.flags.gate?'卷帘门已开启':'按住 E 转动手轮';if(this.target.id==='fuse'&&this.flags.fuse)title='保险芯已取走';if(this.target.kind==='panel')title=this.flags[this.target.id]?'关上门（门轴声会吸引它）':'推开门（门轴声会吸引它）';$('interact').querySelector('span').textContent=t(this.touchMode&&this.target.id==='crank'&&!this.flags.gate?'按住转动手轮':title);}
-    $('hold').classList.toggle('hidden',this.target?.id!=='crank'||!this.flags.power||this.flags.gate);$('hold').querySelector('i').style.width=(this.crankProgress/5*100)+'%';
+    $('hold').classList.toggle('hidden',this.target?.id!=='crank'||!this.flags.power||this.flags.gate);$('hold').querySelector('i').style.width=(this.crankProgress/CRANK_SECONDS*100)+'%';$('hold').querySelector('span').textContent=t('手轮进度')+' '+Math.floor(this.crankProgress)+' / '+CRANK_SECONDS+' s';
     const dangerOn=!!this.enemy?.active&&['chase','search','searchHide'].includes(this.enemy.state);$('danger').classList.toggle('hidden',!dangerOn);if(dangerOn)$('danger').dataset.state=this.enemy.state;else delete $('danger').dataset.state;
     if(this.toastUntil&&this.elapsed>this.toastUntil)$('toast').classList.add('hidden');if(this.subtitleUntil&&this.elapsed>this.subtitleUntil)$('subtitle').classList.add('hidden');
   }
@@ -373,7 +375,7 @@ updateCamera(dt){const bob=this.settings.shake&&this.phase==='play'&&this.moving
       else{p.g.position.copy(next);p.g.rotation.x+=dt*7;p.g.rotation.z+=dt*5;}
     }
   }
-  updateCrank(dt){const near=this.nearestObject();this.cranking=!!(this.keys.has('KeyE')&&near?.id==='crank'&&this.flags.power&&!this.flags.gate&&!this.hiding);if(this.cranking){this.crankProgress=Math.min(5,this.crankProgress+dt);this.objectMeshes.get('crank').userData.wheel.rotation.z-=dt*3;this.crankNoise=(this.crankNoise||0)-dt;if(this.crankNoise<=0){this.crankNoise=.65;this.makeNoise(22);this.sound.noise(.17,.15,240);}const shutter=this.objectMeshes.get('exit').userData.shutter;shutter.position.y=this.crankProgress/5*3.1;if(this.crankProgress>=5){this.flags.gate=true;this.addNote('gate','急救通道卷帘门已打开。');this.toast('门开了！从急救通道进入电梯。',5);this.sound.tone(440,.3,.12);}}}
+  updateCrank(dt){const near=this.nearestObject();this.cranking=!!(this.keys.has('KeyE')&&near?.id==='crank'&&this.flags.power&&!this.flags.gate&&!this.hiding);if(this.cranking){this.crankProgress=Math.min(CRANK_SECONDS,this.crankProgress+dt);this.objectMeshes.get('crank').userData.wheel.rotation.z-=dt*3;this.crankNoise=(this.crankNoise||0)-dt;if(this.crankNoise<=0){this.crankNoise=.65;this.makeNoise(22);this.sound.noise(.17,.15,240);}const shutter=this.objectMeshes.get('exit').userData.shutter;shutter.position.y=this.crankProgress/CRANK_SECONDS*3.1;if(this.crankProgress>=CRANK_SECONDS){this.flags.gate=true;this.addNote('gate','急救通道卷帘门已打开。');this.toast('门开了！从急救通道进入电梯。',5);this.sound.tone(440,.3,.12);}}}
   enterHide(o){
     const e=this.enemy,eye=this.player.clone().setY(1.5);const witnessed=e?.active&&e.grace<=0&&e.mesh.position.distanceTo(this.player)<14&&this.lineOfSight(e.mesh.position.clone().setY(1.65),eye)&&(['chase'].includes(e.state)||e.seen);
     this.hideReturn=this.player.clone();this.hideYaw=Math.PI;this.yaw=Math.PI;this.pitch=0;this.hiding=o;this.player.set(o.x*TILE,0,o.z*TILE+.08);this.hideFlash=this.flashOn;this.flashOn=false;this.clearInput();this.sound.noise(.25,.14,600);$('hideOverlay').classList.remove('hidden');
@@ -417,7 +419,7 @@ updateEnemy(dt){const e=this.enemy;if(!e)return;if(e.rig)e.rig.visible=!!e.activ
   }
   duplicateInView(){if(!this.duplicateActive||!this.duplicate?.visible||this.hiding)return false;this.camera.updateMatrixWorld(true);const face=this.duplicate.position.clone().add(v3(0,1.82,0)),distance=face.distanceTo(this.camera.position);if(distance>27)return false;const dir=face.clone().sub(this.camera.position).normalize(),forward=this.camera.getWorldDirection(new THREE.Vector3());if(dir.dot(forward)<=0)return false;const screen=face.clone().project(this.camera);return Math.abs(screen.x)<.88&&Math.abs(screen.y)<.9&&screen.z<1&&screen.z>-1&&this.lineOfSight(this.camera.position,face);}
   updateDuplicate(dt){if(!this.duplicateActive)return;this.duplicate.userData.head.rotation.z=Math.sin(this.elapsed)*.025;if(this.duplicateInView())this.triggerScare('duplicate',true,'你看见了另一个实体的自己。同一时间线的两个人发生目视，后到者被抹除了。先关闭右侧隔帘，再通电。');}
-  triggerScare(type,fatal,reason){if(this.phase==='scare'||this.phase==='death'||this.phase==='ending')return;this.phase='scare';this.clearInput();document.body.classList.add('scaring');this.flashlight.visible=false;this.arms.visible=false;$('panel').classList.add('hidden');$('interact').classList.add('hidden');$('hold').classList.add('hidden');this.scare={type,fatal,reason,time:0,duration:fatal?1.35:.78};this.events.push({type:'scare',kind:type,fatal,at:this.elapsed});this.sound.scare();
+  triggerScare(type,fatal,reason){if(this.phase==='scare'||this.phase==='death'||this.phase==='ending')return;this.phase='scare';this.crankHazard.reset();this.clearInput();document.body.classList.add('scaring');this.flashlight.visible=false;this.arms.visible=false;$('panel').classList.add('hidden');$('interact').classList.add('hidden');$('hold').classList.add('hidden');this.scare={type,fatal,reason,time:0,duration:fatal?1.35:.78};this.events.push({type:'scare',kind:type,fatal,at:this.elapsed});this.sound.scare();
     const model=character({monster:type!=='duplicate',variant:this.level.id});this.scareHead=model.userData.head;this.scareHead.removeFromParent();disposeModel(model);this.scareHead.position.set(0,-.05,-.84);this.scareHead.rotation.set(0,0,0);this.scareHead.scale.setScalar(1.8);this.camera.add(this.scareHead);this.scareLight=new THREE.PointLight(type==='duplicate'?0xd4dfb7:0xdd9d76,3.2,3,1);this.scareLight.position.set(.1,.15,-.3);this.camera.add(this.scareLight);$('scareFlash').style.opacity='1';
   }
   clearScare(){if(this.scareHead){this.camera.remove(this.scareHead);this.scareHead=null;}if(this.scareLight){this.camera.remove(this.scareLight);this.scareLight=null;}$('scareFlash').style.opacity='0';document.body.classList.remove('scaring');this.scare=null;this.afterScare=null;}
@@ -429,7 +431,7 @@ updateEnemy(dt){const e=this.enemy;if(!e)return;if(e.rig)e.rig.visible=!!e.activ
     if(this.phase==='play'){
       this.elapsed+=dt;this.inputGrace=Math.max(0,this.inputGrace-dt);this.hornCooldown=Math.max(0,this.hornCooldown-dt);
       const due=this.scheduled.filter(e=>e.at<=this.elapsed);this.scheduled=this.scheduled.filter(e=>e.at>this.elapsed);for(const e of due)e.fn();
-      this.updatePlayer(dt);this.updateCamera(dt);this.updateDoors(dt);this.updateThrown(dt);this.updateLod();this.updateEnemy(dt);this.updateHeartbeat(dt);if(this.phase==='play')this.updateDuplicate(dt);if(this.phase==='play'){this.updateCrank(dt);this.updateHUD();if(this.elapsed-this.lastHintUpdate>.3||!this.lastHintUpdate){this.lastHintUpdate=this.elapsed;this.updateHint();}if(this.elapsed-this.lastLightUpdate>.25||!this.lastLightUpdate){this.lastLightUpdate=this.elapsed;this.updateLights();}}
+      this.updatePlayer(dt);this.updateCamera(dt);this.updateDoors(dt);this.updateThrown(dt);this.updateLod();this.updateEnemy(dt);this.updateHeartbeat(dt);if(this.phase==='play')this.updateDuplicate(dt);if(this.phase==='play'){this.updateCrank(dt);if(this.crankHazard.advance(dt,this.cranking&&!this.flags.gate)){this.triggerScare('crank',false,'手轮后的脸消失了。进度保留，重新按住互动继续。');}if(this.phase==='play')this.updateHUD();if(this.elapsed-this.lastHintUpdate>.3||!this.lastHintUpdate){this.lastHintUpdate=this.elapsed;this.updateHint();}if(this.elapsed-this.lastLightUpdate>.25||!this.lastLightUpdate){this.lastLightUpdate=this.elapsed;this.updateLights();}}
     }else if(this.phase==='scare'){this.updateCamera(dt);this.updateScare(dt);}
   }
   animate(now){const dt=Math.min(.05,(now-(this.frameTime||now))/1000);this.frameTime=now;if(this.contextLost){requestAnimationFrame(this.animate);return;}this.update(dt);if(this.phase==='gallery'&&this.portraitRenderer){this.portraitModel.rotation.y+=dt*.35;this.portraitRenderer.render(this.portraitScene,this.portraitCamera);}this.renderer.render(this.scene,this.camera);requestAnimationFrame(this.animate);}
@@ -624,7 +626,7 @@ NightShift.prototype.applyCheckpoint=function(){
   const s=this.saved,f=s.flags||{};
   for(const k of CKPT_FLAGS)if(f[k])this.flags[k]=true;
   if(this.index===0&&this.flags.key&&this.enemy){this.enemy.active=true;this.enemy.grace=Math.max(this.enemy.grace,4);this.enemy.state='patrol';}
-  if(this.index===1&&this.flags.gate){const g=this.objectMeshes.get('exit'),sh=g&&g.userData&&g.userData.shutter;if(sh){sh.position.y=3.1;this.crankProgress=5;}}
+  if(this.index===1&&this.flags.gate){const g=this.objectMeshes.get('exit'),sh=g&&g.userData&&g.userData.shutter;if(sh){sh.position.y=3.1;this.crankProgress=CRANK_SECONDS;}}
   if(this.index===2){
     if(this.flags.curtainClosed){const c=this.objectMeshes.get('curtain'),cloth=c&&c.userData&&c.userData.cloth;if(cloth){cloth.scale.x=1;cloth.position.x=0;}}
     if(this.flags.hospitalPower&&this.duplicate){this.duplicateActive=true;this.duplicate.visible=true;}
@@ -916,6 +918,7 @@ NightShift.prototype.achvReset=function(){
   ],'achvConfirm');
 };
 
+installRace(NightShift);
 export let game;
 try{game=new NightShift();}catch(error){
   const loadingEl=$('loading');if(loadingEl){loadingEl.classList.add('hidden');loadingEl.setAttribute('aria-busy','false');}
