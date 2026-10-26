@@ -1,7 +1,8 @@
 import {RULESET,formatRace} from './challenge.mjs';
 import {t} from '../i18n.mjs';
 import {getItem,setItem} from '../storage.mjs';
-const API='https://nightshift-1996-rankings.zhangqunce90.chatgpt.site/api/race';
+const RANKING_SITE='https://rank.lovequnce.top';
+const API=RANKING_SITE+'/api/race';
 const STAGES=['library_key','library_exit','garage_power','crank_start','garage_gate','garage_exit','hospital_record','dawn'];
 const $=id=>document.getElementById(id);
 const deviceName=d=>t(d==='mobile'?'手机榜':'电脑榜');
@@ -11,7 +12,12 @@ async function api(action,data,token){
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
  try{
   const r=await fetch(`${API}/${action}`,{method:data?'POST':'GET',cache:'no-store',credentials:'omit',headers:data?{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})}:{},body:data?JSON.stringify(data):undefined,signal:controller.signal});
-  const body=await r.json();if(!r.ok)throw new Error(body.error||t('排行榜暂时不可用'));return body;
+  if(!r.headers.get('content-type')?.includes('application/json'))throw new Error(t('排行榜接口未返回有效数据')+' (HTTP '+r.status+')');
+  const body=await r.json();if(!r.ok)throw new Error(body.error||t('排行榜暂时不可用')+' (HTTP '+r.status+')');return body;
+ }catch(e){
+  if(e.name==='AbortError')throw new Error(t('连接超时，请切换 Wi-Fi 或移动网络重试'));
+  if(e instanceof TypeError)throw new Error(t('浏览器未能连接排行榜服务，请尝试独立排行榜页面'));
+  throw e;
  }finally{clearTimeout(timeout);}
 }
 export class RaceSession{
@@ -89,7 +95,7 @@ export function installRace(Game){
    const table=document.createElement('table');const head=table.createTHead().insertRow();
    for(const text of ['名次','玩家','总用时']){const th=document.createElement('th');th.textContent=t(text);head.append(th);}
    const body=table.createTBody();data.entries.forEach((entry,i)=>{const row=body.insertRow();for(const value of [String(i+1),entry.nickname,formatRace(entry.finish_ms)])row.insertCell().textContent=value;});result.append(table);
-  }).catch(()=>{if(result.isConnected){result.textContent=t('排行榜暂时无法连接，请稍后重试。');const retry=document.createElement('button');retry.type='button';retry.textContent=t('重试');retry.onclick=()=>this.openLeaderboard(division);result.append(retry);}});
+  }).catch(e=>{if(result.isConnected){result.textContent=t('排行榜连接失败：')+e.message;const retry=document.createElement('button');retry.type='button';retry.textContent=t('重试');retry.onclick=()=>this.openLeaderboard(division);const link=document.createElement('a');link.href=RANKING_SITE;link.target='_blank';link.rel='noopener';link.textContent=t('打开独立排行榜');link.style.cssText='display:block;margin-top:12px;color:inherit';result.append(retry,link);}});
  };
  const start=Game.prototype.startLevel;
  Game.prototype.startLevel=function(index,intro=true,restore=false){if(this.race&&(restore||index!==this.race.chapter))this.race.cancel(t('读档或重开不计榜'));return start.call(this,index,intro,restore);};
