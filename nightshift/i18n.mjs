@@ -49,13 +49,16 @@ function syncHtml() {
 export async function ensureLang(code) {
   if (!Object.prototype.hasOwnProperty.call(LANGS, code)) return null;
   if (dict[code]) return dict[code];
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
   try {
     const url = new URL('./lang/' + LANGS[code].file, import.meta.url);
-    const res = await fetch(url);
+    const res = await fetch(url, {signal: controller.signal});
     if (!res || !res.ok) return null;
     const data = await res.json();
     if (data && typeof data === 'object' && !Array.isArray(data)) dict[code] = data;
-  } catch (e) { /* 离线 / file:// / 解析失败：回退中文 */ }
+  } catch (e) { /* 离线、超时或解析失败：回退中文，不能卡住整个游戏。 */ }
+  finally { clearTimeout(timeout); }
   return dict[code];
 }
 

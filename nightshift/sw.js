@@ -11,7 +11,7 @@
  */
 const ROOT = new URL('./', self.location).pathname;
 const CACHE_PREFIX = 'nightshift-1996-scope-' + encodeURIComponent(ROOT) + '-';
-const VERSION = CACHE_PREFIX + 'v13';
+const VERSION = CACHE_PREFIX + 'v14';
 
 const PRECACHE = [
   './',
