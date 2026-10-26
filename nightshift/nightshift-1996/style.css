@@ -359,3 +359,9 @@ body.portrait-blocked #raceClock{visibility:hidden}
  body.touch-ui .rank-tabs button{padding:8px;min-height:40px;font-size:12px}
  body.touch-ui .leaderboard th,body.touch-ui .leaderboard td{padding:5px 6px;font-size:12px}
 }
+
+/* Local timing file: readable on phones and in shared screenshots. */
+.local-score-card,.local-records{padding:clamp(18px,3vw,32px);border:1px solid #68725a;background:linear-gradient(135deg,#19251f,#101812);text-align:center;margin:18px 0;color:#dcd8bd}
+.local-score-card p,.local-records p{margin:10px 0}.local-record-time{font:clamp(30px,7vw,64px)/1.2 Consolas,monospace!important;letter-spacing:.03em;color:#e5d6a7;overflow-wrap:anywhere}
+.score-file{font:11px/1.6 Consolas,monospace;letter-spacing:.16em;color:#a8b596}.timer-pause-note{border-left:3px solid #d1bb7d;padding-left:12px;color:#e5d6a7}
+@media(orientation:landscape) and (max-height:480px){.local-score-card,.local-records{padding:14px;margin:10px 0}.local-record-time{font-size:34px!important}}
