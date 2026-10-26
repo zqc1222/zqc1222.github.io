@@ -13,7 +13,23 @@
   <link rel="modulepreload" href="./models.mjs">
   <link rel="modulepreload" href="./game.mjs">
 </head>
-<body>
+<body class="awaiting-notice">
+  <dialog id="startupNotice" open aria-labelledby="noticeTitle" aria-describedby="noticeRisk noticeAdvice">
+    <section class="notice-sheet">
+      <header class="notice-heading"><span class="notice-number" aria-hidden="true">!</span><p class="eyebrow">游玩前须知 / HEALTH NOTICE</p><span class="notice-file">1996 / 017</span></header>
+      <div class="notice-reading">
+        <h2 id="noticeTitle" tabindex="-1">进入夜班之前</h2>
+        <p class="notice-subtitle">光敏性癫痫与惊吓内容提醒</p>
+        <div class="notice-columns">
+          <p id="noticeRisk">本作包含闪烁光效、强烈明暗变化、突然出现的惊吓画面与突发音效。部分视觉效果可能诱发癫痫发作，即使你从未有过相关病史。</p>
+          <p id="noticeAdvice">若你或家人有癫痫或光敏反应史，请先咨询医生。若游玩时出现头晕、视力异常、肌肉抽动或其他不适，请立即停止并咨询医生。</p>
+        </div>
+        <p class="notice-care">请保持环境光线充足，使用舒适音量，避免疲劳时游玩。</p>
+        <p class="notice-fiction">故事与人物均为虚构。请根据自身情况决定是否继续。</p>
+      </div>
+      <footer class="notice-actions"><a href="../">暂不进入</a><span id="noticeStatus" role="status"></span><button id="noticeContinue" type="button">我已阅读，进入夜班 <span aria-hidden="true">→</span></button></footer>
+    </section>
+  </dialog>
   <canvas id="game" aria-label="夜班协议第一人称三维场景"></canvas>
   <div id="grain" aria-hidden="true"></div><div id="vignette" aria-hidden="true"></div><div id="scareFlash" aria-hidden="true"></div>
   <div id="loading" role="status" aria-live="polite" aria-busy="true"><span class="seal">临江 · 1996</span><p>正在接通夜间内线<span class="blink">_</span></p><div class="load-track" aria-hidden="true"><i></i></div></div>
@@ -93,6 +109,6 @@
   </script>
   <p class="nomodule-notice" id="nomoduleNotice" hidden role="alert"><b>浏览器版本过旧</b><br>《夜班协议》的三维夜班需要支持 ES 模块的现代浏览器（Edge 88+ / Chrome 88+ / Safari 14+ / Firefox 89+）。请更新浏览器后重试。<br><span lang="en">This game needs a modern browser with ES module support (Edge 88+ / Chrome 88+ / Safari 14+ / Firefox 89+). Please update and retry.</span></p>
   <script nomodule>(function(){var n=document.getElementById('nomoduleNotice');if(n)n.hidden=false;var l=document.getElementById('loading');if(l)l.classList.add('hidden');})();</script>
-  <script type="module" src="./game.mjs"></script>
+  <script type="module" src="./startup.mjs"></script>
 </body>
 </html>

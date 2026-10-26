@@ -13,7 +13,7 @@ async function api(action,data,token){
  try{
   const r=await fetch(`${API}/${action}`,{method:data?'POST':'GET',cache:'no-store',credentials:'omit',headers:data?{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})}:{},body:data?JSON.stringify(data):undefined,signal:controller.signal});
   if(!r.headers.get('content-type')?.includes('application/json'))throw new Error(t('排行榜接口未返回有效数据')+' (HTTP '+r.status+')');
-  const body=await r.json();if(!r.ok)throw new Error(body.error||t('排行榜暂时不可用')+' (HTTP '+r.status+')');return body;
+  const body=await r.json();if(!r.ok){const error=new Error(body.error||t('排行榜暂时不可用')+' (HTTP '+r.status+')');if(body.code==='CRANK_TIME_PENDING'&&Number.isFinite(body.retryAfterMs))error.retryAfterMs=Math.min(150000,Math.max(0,body.retryAfterMs));throw error;}return body;
  }catch(e){
   if(e.name==='AbortError')throw new Error(t('连接超时，请切换 Wi-Fi 或移动网络重试'));
   if(e instanceof TypeError)throw new Error(t('浏览器未能连接排行榜服务，请尝试独立排行榜页面'));
@@ -35,7 +35,11 @@ export class RaceSession{
    try{result=await api('mark',{stage},this.token)}catch(first){
     if(this.status!=='active')return;
     // Idempotent stage acknowledgements make a lost response safe to retry once.
-    await new Promise(r=>setTimeout(r,700));result=await api('mark',{stage},this.token);
+    // The start marker may arrive late on mobile networks. Keep the server's
+    // full 150-second requirement, and wait out its remaining interval.
+    await new Promise(r=>setTimeout(r,Math.max(700,(first.retryAfterMs||0)+100)));
+    if(this.status!=='active')return;
+    result=await api('mark',{stage},this.token);
    }
    if(result.finished){this.finishMs=result.finishMs;this.status='finished';}
   }).catch(e=>this.cancel(e.message||t('网络中断，本次不计榜')));
