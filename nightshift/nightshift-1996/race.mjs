@@ -2,7 +2,12 @@ import {RULESET,formatRace} from './challenge.mjs';
 import {t} from '../i18n.mjs';
 import {getItem,setItem} from '../storage.mjs';
 const RANKING_SITE='https://rank.lovequnce.top';
-const API=RANKING_SITE+'/api/race';
+const API=(location.origin===RANKING_SITE?'':RANKING_SITE)+'/api/race';
+function useRaceHost(mode){
+ if(location.origin===RANKING_SITE||['localhost','127.0.0.1','[::1]'].includes(location.hostname))return false;
+ location.assign(RANKING_SITE+'/nightshift/nightshift-1996/?mode='+mode);
+ return true;
+}
 const STAGES=['library_key','library_exit','garage_power','crank_start','garage_gate','garage_exit','hospital_record','dawn'];
 const $=id=>document.getElementById(id);
 const deviceName=d=>t(d==='mobile'?'手机榜':'电脑榜');
@@ -60,6 +65,7 @@ export function installRace(Game){
  const save=Game.prototype.save;
  Game.prototype.save=function(){if(!this.race)return save.call(this);};
  Game.prototype.racePanel=function(){
+  if(useRaceHost('race'))return;
   this.leaveRace();
   const box=document.createElement('div');box.className='race-entry';
   const rules=document.createElement('p');rules.textContent=t('三章逃生 · 一次生命 · 150 秒手轮。暂停、阅读和突脸均计时。死亡、重开、读档或刷新将结束本次竞速，普通存档不受影响。');
@@ -87,6 +93,7 @@ export function installRace(Game){
   },'primary'],[t('返回标题'),()=>this.showMenu()]],'menu');
  };
  Game.prototype.openLeaderboard=function(division=divisionOf()){
+  if(useRaceHost('board'))return;
   const box=document.createElement('div');box.className='leaderboard';
   const rules=document.createElement('p');rules.className='small muted';rules.textContent=t('150 秒手轮 · 三章天亮结局 · 总用时含暂停与阅读。休闲竞速，基础时间与流程校验。');
   const tabs=document.createElement('div');tabs.className='rank-tabs';

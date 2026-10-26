@@ -27,13 +27,16 @@ button.addEventListener('click',async()=>{
   status.textContent=t('正在接通夜班…');
   try{
     await languageReady;
-    await import('./game.mjs');
+    const {game}=await import('./game.mjs');
     notice.classList.add('notice-leaving');
     // Keep the modal focus boundary during the fade, including on rotation.
     await new Promise(resolve=>setTimeout(resolve,matchMedia('(prefers-reduced-motion: reduce)').matches?0:480));
     if(typeof notice.close==='function')notice.close();
     notice.remove();document.body.classList.remove('awaiting-notice');
-    const target=document.querySelector('#rotateNotice:not(.hidden), #fatal:not(.hidden) button, #newGame');
+    const mode=new URLSearchParams(location.search).get('mode');
+    if(game&&mode==='race')game.racePanel();
+    else if(game&&mode==='board')game.openLeaderboard();
+    const target=document.querySelector('#rotateNotice:not(.hidden), #fatal:not(.hidden) button, #panel:not(.hidden) button, #newGame');
     target?.focus({preventScroll:true});
   }catch(error){
     status.textContent=t('加载失败，请刷新页面后重试。');

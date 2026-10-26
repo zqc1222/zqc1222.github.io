@@ -11,7 +11,7 @@
  */
 const ROOT = new URL('./', self.location).pathname;
 const CACHE_PREFIX = 'nightshift-1996-scope-' + encodeURIComponent(ROOT) + '-';
-const VERSION = CACHE_PREFIX + 'v9';
+const VERSION = CACHE_PREFIX + 'v11';
 
 const PRECACHE = [
   './',
@@ -63,6 +63,9 @@ self.addEventListener('fetch', (event) => {
   let url;
   try { url = new URL(req.url); } catch (e) { return; }
   if (url.origin !== self.location.origin) return;
+  // A controlled game can also fetch /api/race on this origin. Cache only
+  // static resources inside this game's scope, never live ranking responses.
+  if (!url.pathname.startsWith(ROOT)) return;
 
   // 导航：network-first
   if (req.mode === 'navigate') {
