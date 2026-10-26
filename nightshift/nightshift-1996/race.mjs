@@ -16,7 +16,7 @@ const divisionOf=()=>navigator.userAgentData?.mobile||/Android|iPhone|iPad|iPod|
 async function api(action,data,token){
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
  try{
-  const r=await fetch(`${API}/${action}`,{method:data?'POST':'GET',cache:'no-store',credentials:'omit',headers:data?{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})}:{},body:data?JSON.stringify(data):undefined,signal:controller.signal});
+  const r=await fetch(`${API}/${action}`,{method:data?'POST':'GET',cache:'no-store',credentials:'same-origin',headers:data?{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})}:{},body:data?JSON.stringify(data):undefined,signal:controller.signal});
   if(!r.headers.get('content-type')?.includes('application/json'))throw new Error(t('排行榜接口未返回有效数据')+' (HTTP '+r.status+')');
   const body=await r.json();if(!r.ok){const error=new Error(body.error||t('排行榜暂时不可用')+' (HTTP '+r.status+')');if(body.code==='CRANK_TIME_PENDING'&&Number.isFinite(body.retryAfterMs))error.retryAfterMs=Math.min(150000,Math.max(0,body.retryAfterMs));throw error;}return body;
  }catch(e){
